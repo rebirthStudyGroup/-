@@ -17,5 +17,7 @@ from django.contrib import admin
 from django.urls import path
 
 urlpatterns = [
+    path('', include('sidebay_res_system.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
     path('admin/', admin.site.urls),
 ]
