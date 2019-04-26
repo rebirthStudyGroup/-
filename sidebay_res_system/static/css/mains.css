@@ -11,37 +11,33 @@ body {
 /* ========================
 ヘッダー
 ============================ */
-header {
-  background: orange;
-  height: 50px;
+
+.navbar {
+  background: #ed9613;
 }
 
-header nav ul {
-  display: flex;
-  justify-content: flex-end;
+.navbar-nav {
+  margin-right: 40px;
 }
 
-.header-logo {
-  float: left;
-  margin-left: 40px;
-  line-height: 50px;
+.navbar-brand {
+  margin-left: 5px;
 }
 
-header nav ul li {
-  list-style-type: none;
-  margin-right: 10px;
-  color: #fff;
-  font-weight: bold;
-  line-height: 50px;
+.navbar-nav li a {
+  color:#fff;
+  font-size: 16px;
+  font-weight: 600;
 }
 
-header nav ul li + li {
+.navbar-nav {
+  line-height: 46px;
+}
+
+.nav-item  {
   margin-left: 10px;
 }
 
-header nav ul li:last-child {
-  margin-right: 20px;
-}
 
 /* ========================
 ヘッダー画像
@@ -74,9 +70,10 @@ header nav ul li:last-child {
 
 .contents-box {
   display: flex;
-  margin-top: 50px;
+  margin-top: 20px;
   backface-visibility: hidden;
 	-webkit-backface-visibility: hidden;
+  padding: 10px;
 }
 
 .content-box {
@@ -191,7 +188,11 @@ header nav ul li:last-child {
   color: #fff;
 }
 
-
+.fadein {
+  opacity : 0;
+  transform: translateY(20px);
+  transition: all 1s;
+}
 
 section .lecture-content {
   display: block;
@@ -259,6 +260,32 @@ section .card {
   background: #f4124c;
   color: #fff;
 }
+
+/* ========================
+トップに戻る
+============================ */
+#page-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 77%;
+}
+#page-top a {
+    background: #666;
+    text-decoration: none;
+    color: #fff;
+    width: 100px;
+    padding: 30px 0;
+    text-align: center;
+    display: block;
+    border-radius: 5px;
+}
+#page-top a:hover {
+    text-decoration: none;
+    background: #999;
+}
+
+
 
 
 /* ========================
