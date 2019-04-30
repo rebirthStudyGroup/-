@@ -1,3 +1,5 @@
+
+
 .lottery-title {
   text-align: center;
   margin-top: 50px;
@@ -16,6 +18,31 @@ padding-bottom: 30px;
 }
 .lottery-card {
 
+}
+
+/* ==========================
+
+js用CSS
+
+=============================*/
+#dateForm1,
+#dateForm2,
+#dateForm3 {
+  margin-bottom: 3px;
+}
+
+#dateForm2,
+#dateForm3 {
+    opacity: 0;
+    transition: 1s;
+    visibility: hidden;
+    
+}
+
+#dateForm2.is-show,
+#dateForm3.is-show {
+    opacity: 1;
+    visibility: visible;
 }
 
 .lottery-card-body {
@@ -47,6 +74,14 @@ label.lottery-label-num {
   text-align: center;
   position: relative;
 }
+
+
+
+/* ========================
+
+スマホ対応
+
+===========================*/
 
 
 @media (max-width:470px) {
@@ -100,3 +135,5 @@ label.lottery-label-num {
     display: block;
   }
 }
+
+
