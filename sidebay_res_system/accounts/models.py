@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import BaseUserManager
 
 # Create your models here.
 class User(AbstractUser):
@@ -7,12 +8,23 @@ class User(AbstractUser):
     ユーザ情報を提供するDTOクラス
     """
     user_id = models.IntegerField(verbose_name='ユーザID', primary_key=True)
-    username = models.CharField(verbose_name='ユーザ名', unique=True, max_length=40, default=None)
+    username = models.CharField(verbose_name='ユーザ名', unique=True, max_length=40, default=None, blank=True)
     mail_address = models.EmailField(verbose_name='メールアドレス', unique=True, default=None)
     password = models.CharField(verbose_name='パスワード', max_length=10, default=None) #パスワードの入力制限は設けるか
 
+    USERNAME_FIELD = 'mail_address'
+
+    def check_pass(self, password):
+        return password == User.objects.filter(mail_address=self.mail_address).first().password
+
     def __str__(self):
-        return self.username
+        return self.mail_address
+
+    def get_full_name(self):
+        return self.mail_address
+
+    def get_short_name(self):
+        return self.mail_address
 
 class Lottery_pool(models.Model):
     """
