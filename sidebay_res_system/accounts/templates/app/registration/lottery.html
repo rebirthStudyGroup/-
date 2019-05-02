@@ -1,0 +1,89 @@
+{% extends '../main_base.html' %}
+{% load static %}
+{% block content %}
+    <header>
+      <!-- <div class="container"> -->
+      <nav class="navbar navbar-expand-lg navbar-light">
+          <a class="navbar-brand" href="#">ロゴ</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+              <ul class="navbar-nav">
+                  <!-- <span class="sr-only">(current)</span>　現在の位置的なやつ -->
+                  <!-- activ -->
+                  <li class="nav-item ">
+                      <a href="#">マイページ</a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="#">アクセス</a>
+                  </li>
+                  <li class="nav-item">
+                      <!-- disableの指定なし -->
+                      <a href="{% url 'login' %}">ログアウト</a>
+                  </li>
+              </ul>
+          </div>
+      </nav>
+      <!-- </div> -->
+    </header>
+    <div class="container">
+      <div class="lottery-title">
+        <p class="form-title">抽選エントリーフォーム</p>
+        <p class="">抽選対象期間</p>
+        <p>yyyymmdd ～ yyyymmdd</p>
+      </div>
+      
+      <form class="" action="" method="post"> 
+      {% csrf_token %}
+      <div class="card lottery-card">
+        <div class="card-body lottery-card-body">
+            <p>
+            <label class="lottery-label-userName">
+              予約者<span class="required">*</span><input class="form-control" type="text" name="" value="" placeholder="" required>
+            </label>
+            </p>
+            <p>
+              <label class="lottery-label-num">
+                人数<span class="required">*</span><input class="form-control" type="number" name="" value="" required>
+              </label>
+              </p>
+            <p id="dateForm1">
+            <label class="lottery-label-day">予約日（第1希望）<span class="required">*</span>
+              <input class="lottery-days form-control" type="text" id="datepicker" size="20" name="first" placeholder="" required>
+            </label>
+            <span id="addBtn1" onclick="addLotteryForm2();">+</span>
+            </p>
+            <p id="dateForm2">
+            <label class="lottery-label-day">予約日（第2希望）
+                <input class="lottery-days form-control" type="text" id="datepicker1" size="20" name="second">
+            </label>
+            <span id="addBtn2" onclick="addLotteryForm3();">+</span>
+            <span id="addBtn2" onclick="removeLotteryForm2();">-</span>
+            </p>
+            <p id="dateForm3">
+            <label class="lottery-label-day">予約日（第3希望）
+                <input class="lottery-days form-control" type="text" id="datepicker2" size="20" name="thired">
+            </label>
+            <span id="addBtn2" onclick="removeLotteryForm3();">-</span> 
+            </p>
+            </div>
+            <div class="lottery-send">
+              <button class="btn lottery-send-btn" type="submit" name="button">送信</button>
+            </div>
+        </div>
+      </form>
+      </div>
+     <footer>
+         <div class="footer-image">
+         <img class="rebirth-logo" src="{% static 'img/rebirth.png' %}" alt="社名ロゴマーク" width="50px" height="80px">
+         </div>
+        <div class="footer-text">
+          <p class="copyright-text">c 2019 Sidebay_res_system_team</p>
+       </div>
+
+     </footer>
+
+
+{% endblock content %}
