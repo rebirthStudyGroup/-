@@ -1,8 +1,6 @@
-
-
 .lottery-title {
   text-align: center;
-  margin-top: 50px;
+  margin-top: 10px;
 }
 
 .form-title {
@@ -11,13 +9,11 @@
 
 .lottery-card,
 form {
-width: 450px;
-margin: 0 auto;
-margin-bottom: 30px;
-padding-bottom: 30px;
+  width: 450px;
+  margin: 0 auto;
+  margin-bottom: 30px;
 }
 .lottery-card {
-
 }
 
 /* ==========================
@@ -33,26 +29,33 @@ js用CSS
 
 #dateForm2,
 #dateForm3 {
-    opacity: 0;
-    transition: 1s;
-    visibility: hidden;
-    
+  opacity: 0;
+  transition: 1s;
+  visibility: hidden;
 }
 
 #dateForm2.is-show,
 #dateForm3.is-show {
-    opacity: 1;
-    visibility: visible;
+  opacity: 1;
+  visibility: visible;
 }
+
+/* ==========================
+
+メインフォーム
+
+=============================*/
 
 .lottery-card-body {
   padding: 30px 0 0px 70px;
   display: block;
 }
 
-
 label.lottery-label-userName {
   width: 300px;
+}
+label.lottery-label-room {
+  width: 200px;
 }
 label.lottery-label-day {
   width: 300px;
@@ -67,7 +70,7 @@ label.lottery-label-num {
 
 .lottery-send-btn {
   width: 200px;
-
+  margin-bottom: 20px;
 }
 
 .lottery-send {
@@ -75,22 +78,19 @@ label.lottery-label-num {
   position: relative;
 }
 
-
-
 /* ========================
 
 スマホ対応
 
 ===========================*/
 
-
-@media (max-width:470px) {
+@media (max-width: 470px) {
   .lottery-card,
   form {
-  width: 350px;
-  margin: 0 auto;
-  margin-bottom: 30px;
-  padding-bottom: 30px;
+    width: 350px;
+    margin: 0 auto;
+    margin-bottom: 30px;
+    padding-bottom: 30px;
   }
   label.lottery-label-userName {
     width: 200px;
@@ -107,18 +107,17 @@ label.lottery-label-num {
     display: block;
   }
 }
-@media (max-width:320px) {
-
+@media (max-width: 320px) {
   .form-title {
     font-size: 22px;
   }
 
   .lottery-card,
   form {
-  width: 280px;
-  margin: 0 auto;
-  margin-bottom: 30px;
-  padding-bottom: 30px;
+    width: 280px;
+    margin: 0 auto;
+    margin-bottom: 30px;
+    padding-bottom: 30px;
   }
   label.lottery-label-userName {
     width: 200px;
@@ -135,5 +134,3 @@ label.lottery-label-num {
     display: block;
   }
 }
-
-
