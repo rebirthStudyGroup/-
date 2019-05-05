@@ -15,12 +15,15 @@ $( function () {
     var getMonthDay = parseInt( getMonthDays( nowYear, nowMonth ) );
     console.log( getMonthDay );
     //未来の月の日数
-    var getFutMonthDays = function ( year, month ) {
-        return new Date( year, month, 0 ).getDate();
-    };
+
     var getFutMonthDay = parseInt( getMonthDays( nowYear, futMonth ) );
     console.log( getFutMonthDay );
-    $( "#datepicker" ).datepicker( {
+    $( "#datepicker_start" ).datepicker( {
+        minDate: ( ( getMonthDay + 1 ) - nowDate ) + "+2M", maxDate: ( getFutMonthDay - nowDate ) + "D" + "+3M",
+        dateFormat: 'yy年mm月dd日',
+        showAnim: 'slideDown',
+    } );
+    $( "#datepicker_end" ).datepicker( {
         minDate: ( ( getMonthDay + 1 ) - nowDate ) + "+2M", maxDate: ( getFutMonthDay - nowDate ) + "D" + "+3M",
         dateFormat: 'yy年mm月dd日',
         showAnim: 'slideDown',
