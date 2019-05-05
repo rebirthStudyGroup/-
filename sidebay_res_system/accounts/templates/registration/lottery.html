@@ -31,49 +31,88 @@
     <div class="container">
       <div class="lottery-title">
         <p class="form-title">抽選エントリーフォーム</p>
-        <p class="">抽選対象期間</p>
+        <p class="lottery-period">抽選対象期間</p>
         <p>yyyymmdd ～ yyyymmdd</p>
       </div>
-      
-      <form class="" action="" method="post"> 
-      {% csrf_token %}
-      <div class="card lottery-card">
-        <div class="card-body lottery-card-body">
-            <p>
-            <label class="lottery-label-userName">
-              予約者<span class="required">*</span><input class="form-control" type="text" name="" value="" placeholder="" required>
-            </label>
-            </p>
-            <p>
-              <label class="lottery-label-num">
-                人数<span class="required">*</span><input class="form-control" type="number" name="" value="" required>
-              </label>
-              </p>
-            <p id="dateForm1">
-            <label class="lottery-label-day">予約日（第1希望）<span class="required">*</span>
-              <input class="lottery-days form-control" type="text" id="datepicker" size="20" name="first" placeholder="" required>
-            </label>
-            <span id="addBtn1" onclick="addLotteryForm2();">+</span>
-            </p>
-            <p id="dateForm2">
-            <label class="lottery-label-day">予約日（第2希望）
-                <input class="lottery-days form-control" type="text" id="datepicker1" size="20" name="second">
-            </label>
-            <span id="addBtn2" onclick="addLotteryForm3();">+</span>
-            <span id="addBtn2" onclick="removeLotteryForm2();">-</span>
-            </p>
-            <p id="dateForm3">
-            <label class="lottery-label-day">予約日（第3希望）
-                <input class="lottery-days form-control" type="text" id="datepicker2" size="20" name="thired">
-            </label>
-            <span id="addBtn2" onclick="removeLotteryForm3();">-</span> 
-            </p>
-            </div>
-            <div class="lottery-send">
-              <button class="btn lottery-send-btn" type="submit" name="button">送信</button>
-            </div>
-        </div>
-      </form>
+                      <div id="contents" class="container-fluid">
+                        
+                          <div class="col-xs-12">
+                            <div class="panel calendar-panel">
+                              <div class="panel-heading">
+                                
+                              </div>
+                              <div class="panel-body">
+                                <div class="row">
+                                  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="calendar"></div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                      
+                      </div>
+                      </div>
+                      <!-- ここからモーダル表示部分として追記 -->
+                      <div id="calendarModal" class="modal fade">
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="label1">Modal title</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <form class="" action="" method="post">
+                                {% csrf_token %}
+                                <div class="card lottery-card">
+                                  <div class="card-body lottery-card-body">
+                                    <p>
+                                      <label class="lottery-label-num">
+                                        人数<span class="required">*</span><input class="form-control" type="number" name="" value="" required>
+                                      </label>
+                                    </p>
+                                    <p>
+                                      <label class="lottery-label-room">
+                                        お部屋<span class="required">*</span>
+                                        <select name="" id="" class="form-control">
+                                          <option value="6" selected>選択してください</option>
+                                          <option value="6">6帖</option>
+                                          <option value="8">8帖</option>
+                                        </select>
+                                      </label>
+                                    </p>
+                                    <p id="dateForm1">
+                                      <label class="lottery-label-day">予約日（第1希望）<span class="required">*</span>
+                                        <input class="lottery-days form-control" type="text" id="datepicker_start" size="20" name="first"
+                                          placeholder="チェックイン" required>
+                                        <input class="lottery-days form-control" type="text" id="datepicker_end" size="20" name="first"
+                                          placeholder="チェックアウト" required>
+                                      </label>
+                                      <span id="addBtn1" onclick="addLotteryForm2();">+</span>
+                                    </p>
+                                    <p id="dateForm2">
+                                      <label class="lottery-label-day">予約日（第2希望）
+                                        <input class="lottery-days form-control" type="text" id="datepicker1" size="20" name="second">
+                                      </label>
+                                      <span id="addBtn2" onclick="addLotteryForm3();">+</span>
+                                      <span id="addBtn2" onclick="removeLotteryForm2();">-</span>
+                                    </p>
+                                    <p id="dateForm3">
+                                      <label class="lottery-label-day">予約日（第3希望）
+                                        <input class="lottery-days form-control" type="text" id="datepicker2" size="20" name="thired">
+                                      </label>
+                                      <span id="addBtn2" onclick="removeLotteryForm3();">-</span>
+                                    </p>
+                                  </div>
+                                  <div class="lottery-send">
+                                    <button class="btn lottery-send-btn" type="submit" name="button">送信</button>
+                                  </div>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
       </div>
      <footer>
          <div class="footer-image">
