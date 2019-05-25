@@ -1,9 +1,22 @@
+.container {
+  margin-top: 40px;
+}
+
+.calender-type-select {
+  float: right;
+  display: inline;
+
+}
 .lottery-title {
   text-align: center;
   margin-top: 10px;
+  width: 400px;
+  margin: 0 auto;
+  
 }
 
-.form-title {
+.form-title,
+#title-type {
   font-size: 30px;
 }
 
@@ -57,11 +70,15 @@ label.lottery-label-userName {
 label.lottery-label-room {
   width: 200px;
 }
-label.lottery-label-day {
+/* label.lottery-label-day {
   width: 300px;
-}
+} */
 label.lottery-label-num {
   width: 100px;
+}
+
+label.lottery-label-free-text {
+  width: 320px;
 }
 
 .required {
