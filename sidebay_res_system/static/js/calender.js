@@ -1,3 +1,6 @@
+function closeArea(){
+  $('#detail-area').hide();
+}
 
 function titleTypeChange() {
     var titleType = document.getElementById("title-type");
@@ -53,20 +56,6 @@ $(document).ready(function() {
     lang: "ja",
     selectable: true,
     selectHelper: true,
-
-    // select: function(start, end) {
-    // var title = prompt("予定タイトル:");
-    // var eventData;
-    // if (title) {
-    //         eventData = {
-    //                 title: title,
-    //                 start: start,
-    //                 end: end
-    //         };
-    //         $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
-    // }
-    // $('#calendar').fullCalendar('unselect');
-    // },
     editable: true,
     eventLimit: true,
     success: function(calEvent) {
@@ -74,14 +63,30 @@ $(document).ready(function() {
       $("#calendar").fullCalendar("addEventSource", calEvent);
     },
 
-    events: [
-      {
-        title: "タイトル",
-        start: "2019-05-25",
-      }
-    ],
+    events : json_data,
+    // events: [
+    //   {
+    //     id: 1,
+    //     title: '空き状況：○',
+    //     description1: 'ミヤタ', //予定内容
+    //     start: '2019-09-01'
+    //   }
+    // ],
 
-    eventClick: function(calEvent, jsEvent, view) {},
+    eventClick: function(event) {
+      
+      var event_data = '<a href="javascript:void(0);" class="close" onclick="return closeArea();">閉じる</a><br>';
+
+      event_data += event.title + '<br><br>\n';
+      event_data += '<b>予約者一覧</b><br>\n';
+      event_data += event.subscriber1+ '<br>\n';
+      event_data += event.subscriber2+ '<br>\n';
+      event_data += event.subscriber3+ '<br>\n';
+      event_data += event.subscriber4+ '<br>\n';
+
+				//<div id="detail-area"></div>の中にevent_dataを入れて表示させる
+				$('#detail-area').html(event_data).show();
+    },
     dayClick: function(date, jsEvent, view) {
       // 編集ボタンと削除ボタン、ついでに閉じるボタンのHTML要素を追加
 
