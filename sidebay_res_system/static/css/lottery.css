@@ -1,6 +1,36 @@
 .container {
   margin-top: 40px;
 }
+.close {
+font-size:16px;
+background-color: brown;
+/* width: 80px; */
+height: auto;
+padding: 10px;
+border-radius: 8px;
+position: relative;
+
+}
+
+#detail-area{
+  font-size: 20px;
+  border-radius: 16px;
+	display: none;
+	width: 300px;
+	height: 300px;
+	background: hsla(32, 93%, 70%, 0.979);
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	margin: auto;
+	z-index: 999;
+  padding: 30px;
+  transition: 1s;
+  /* opacity: 0.9; */
+}
+
 
 .calender-type-select {
   float: right;
@@ -13,6 +43,11 @@
   width: 400px;
   margin: 0 auto;
   
+}
+
+.fc-event-container {
+  text-align: center;
+  color: aliceblue;
 }
 
 .form-title,
