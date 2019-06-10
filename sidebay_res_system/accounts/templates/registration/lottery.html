@@ -75,13 +75,13 @@
                         <div class="card-body lottery-card-body">
                           <p>
                             <label class="lottery-label-num">
-                              人数<span class="required">*</span><input class="form-control" type="number" name="" value="" min="1" max="10" required>
+                              人数<span class="required">*</span><input class="form-control" type="number" name="res_num" value="" min="1" max="10" required>
                             </label>
                           </p>
                           <p>
                             <label class="lottery-label-room">
                               希望のお部屋<span class="required">*</span>
-                              <select name="" id="" class="form-control">
+                              <select name="res_room" id="" class="form-control">
                                 <option value="0" selected>選択してください</option>
                                 <option value="6">6帖</option>
                                 <option value="8">8帖</option>
@@ -91,7 +91,7 @@
                           <p>
                             <label class="lottery-label-room">
                               利用形態<span class="required">*</span>
-                              <select name="" id="" class="form-control">
+                              <select name="res_usage" id="" class="form-control">
                                 <option value="0" selected>選択してください</option>
                                 <option value="1">家族</option>
                                 <option value="2">友人</option>
@@ -103,9 +103,9 @@
                           </p>
                           <p id="dateForm1">
                             <label class="lottery-label-day">予約日（第1希望）<span class="required">*</span>
-                              <input class="lottery-days form-control" type="text" id="datepicker_start" size="20" name="first"
+                              <input class="lottery-days form-control" type="text" id="datepicker_start" size="20" name="res_check_in_date"
                                 placeholder="チェックイン" required>
-                              <input class="lottery-days form-control" type="text" id="datepicker_end" size="20" name="first"
+                              <input class="lottery-days form-control" type="text" id="datepicker_end" size="20" name="res_check_out_date"
                                 placeholder="チェックアウト" required>
                             </label>
                             <!-- <span id="addBtn1" onclick="addLotteryForm2();">+</span> -->
@@ -126,7 +126,7 @@
                         <p>
                             <div class="form-group">
                                 <label class="lottery-label-free-text" for="#">ご希望
-                              <textarea id="textarea1" class="form-control"></textarea>
+                              <textarea id="textarea1" name="res_request" class="form-control"></textarea>
                             </div>
                           </label>
                         </p>
@@ -158,13 +158,13 @@
                     <div class="card-body lottery-card-body">
                       <p>
                         <label class="lottery-label-num">
-                          人数<span class="required">*</span><input class="form-control" type="number" name="" value="" min="1" max="10" required>
+                          人数<span class="required">*</span><input class="form-control" type="number" name="res_num" value="" min="1" max="10" required>
                         </label>
                       </p>
                       <p>
                         <label class="lottery-label-room">
                           希望のお部屋<span class="required">*</span>
-                          <select name="" id="" class="form-control">
+                          <select name="res_room" id="" class="form-control">
                             <option value="0" selected>選択してください</option>
                             <option value="6">6帖</option>
                             <option value="8">8帖</option>
@@ -174,7 +174,7 @@
                       <p>
                         <label class="lottery-label-room">
                           利用形態<span class="required">*</span>
-                          <select name="" id="" class="form-control">
+                          <select name="res_usage" id="" class="form-control">
                             <option value="0" selected>選択してください</option>
                             <option value="1">家族</option>
                             <option value="2">友人</option>
@@ -186,9 +186,9 @@
                       </p>
                       <p id="dateForm1">
                         <label class="lottery-label-day">予約日（第1希望）<span class="required">*</span>
-                          <input class="lottery-days form-control" type="text" id="datepicker_start2" size="20" name="first"
+                          <input class="lottery-days form-control" type="text" id="datepicker_start2" size="20" name="res_check_in_date"
                             placeholder="チェックイン" required>
-                          <input class="lottery-days form-control" type="text" id="datepicker_end" size="20" name="first"
+                          <input class="lottery-days form-control" type="text" id="datepicker_end" size="20" name="res_check_out_date"
                             placeholder="チェックアウト" required>
                         </label>
                         <!-- <span id="addBtn1" onclick="addLotteryForm2();">+</span> -->
