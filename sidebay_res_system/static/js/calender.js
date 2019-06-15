@@ -13,6 +13,158 @@ function titleTypeChange() {
         titleType.textContent = "予約・二次予約フォーム";
       } 
   }
+
+  function confModalOpen() {
+    var clalenderType =  document.getElementById("calender-type").value;
+    if (clalenderType == 0) {
+      // 抽選エントリー画面
+      if (!validationCheck()) {
+        errorAlertStr = errorAlert.join(',');
+        for (var i = 0; i < errorAlert.length; i++ ) {
+          errorAlertMsg = errorAlertStr.replace(",", "");
+        }
+        alert(errorAlertMsg);
+        return;
+      }
+    } else {
+      if (!validationCheck2()) {
+        errorAlertStr = errorAlert.join(',');
+        for (var i = 0; i < errorAlert.length; i++ ) {
+          errorAlertMsg = errorAlertStr.replace(",", "");
+        }
+        alert(errorAlertMsg);
+        return;
+      }
+    } 
+
+    if (clalenderType == 0) {
+      value_conf();
+    } else {
+      value_conf2();
+    }
+    $("#calendarModal3").modal(); // モーダル着火
+    $("#calendarModal").modal('hide'); // クローズ
+    $("#calendarModal2").modal('hide'); // クローズ
+  }
+
+  function backForm() {
+    var clalenderType =  document.getElementById("calender-type").value;
+    if (clalenderType == 0) {
+      // モーダルだし分け
+      $("#calendarModal3").modal('hide'); // クローズ
+      $("#calendarModal").modal(); // モーダル着火
+    } else {
+      $("#calendarModal3").modal('hide'); // クローズ
+      $("#calendarModal2").modal(); // モーダル着火
+    }  
+  }
+
+  // modalのキャッシュの削除
+
+
+  // バリデーションチェック
+  function validationCheck() {
+    var res_num_ =  document.getElementById("res_num").value;
+    var res_room =  document.getElementById("res_room").value;
+    var res_usage =  document.getElementById("res_usage").value;
+    var datepicker_start =  document.getElementById("datepicker_start").value;
+    // datepicker_start = trim(datepicker_start);
+
+    errorAlert = [];
+
+    // 配列バージョン
+    
+    if (res_num_ === '') {
+      errorAlert.push("人数の入力がありません" + "\n");
+    }
+    if (res_room == 0) {
+      errorAlert.push("希望の部屋が選択されていません。" + "\n");
+    }
+    if (res_usage == 0) {
+      errorAlert.push("利用形態が選択されていません。" + "\n");
+    }
+    if (datepicker_start === '') {
+      errorAlert.push("予約日の入力がありません" + "\n");
+    }
+    if (errorAlert.length > 0) {
+      return false;
+    }
+    return true;
+  }
+
+  function validationCheck2() {
+    var res_num_ =  document.getElementById("res_num2").value;
+    var res_room =  document.getElementById("res_room2").value;
+    var res_usage =  document.getElementById("res_usage2").value;
+    var datepicker_start =  document.getElementById("datepicker_start2").value;
+    // datepicker_start = trim(datepicker_start);
+
+    errorAlert = [];
+
+    // 配列バージョン
+    
+    if (res_num_ === '') {
+      errorAlert.push("人数の入力がありません" + "\n");
+    }
+    if (res_room == 0) {
+      errorAlert.push("希望の部屋が選択されていません。" + "\n");
+    }
+    if (res_usage == 0) {
+      errorAlert.push("利用形態が選択されていません。" + "\n");
+    }
+    if (datepicker_start === '') {
+      errorAlert.push("予約日の入力がありません" + "\n");
+    }
+    if (errorAlert.length > 0) {
+      return false;
+    }
+    return true;
+  }
+
+  // 確認画面への値渡し
+  function value_conf() {
+    var res_num_value =  document.getElementById("res_num").value;
+    var res_room_value =  document.getElementById("res_room").value;
+    var res_usage_value =  document.getElementById("res_usage").value;
+    var datepicker_start_value =  document.getElementById("datepicker_start").value;
+    var free_textArea_value =  document.getElementById("free_textArea").value;
+    
+    var num_conf_value = document.getElementById("num_conf");
+    var room_conf_value = document.getElementById("room_conf");
+    var usage_conf_value = document.getElementById("usage_conf");
+    var day_conf_value = document.getElementById("day_conf");
+    var free_text_value = document.getElementById("free_text");
+
+
+    num_conf_value.innerHTML = res_num_value;
+    room_conf_value.innerHTML = res_room_value;
+    usage_conf_value.innerHTML = res_usage_value;
+    day_conf_value.innerHTML = datepicker_start_value;
+    free_text_value.innerHTML = free_textArea_value;
+
+  }
+
+  function value_conf2() {
+    var res_num_value =  document.getElementById("res_num2").value;
+    var res_room_value =  document.getElementById("res_room2").value;
+    var res_usage_value =  document.getElementById("res_usage2").value;
+    var datepicker_start_value2 =  document.getElementById("datepicker_start2").value;
+    var free_textArea_value =  document.getElementById("free_textArea2").value;
+    
+    var num_conf_value = document.getElementById("num_conf");
+    var room_conf_value = document.getElementById("room_conf");
+    var usage_conf_value = document.getElementById("usage_conf");
+    var day_conf_value = document.getElementById("day_conf");
+    var free_text_value = document.getElementById("free_text");
+
+
+    num_conf_value.innerHTML = res_num_value;
+    room_conf_value.innerHTML = res_room_value;
+    usage_conf_value.innerHTML = res_usage_value;
+    day_conf_value.innerHTML = datepicker_start_value2;
+    free_text_value.innerHTML = free_textArea_value;
+
+  }
 $(document).ready(function() {
 
   // 数か月先をとるプロトタイプ　ネットに落ちてた。
@@ -91,11 +243,16 @@ $(document).ready(function() {
       // 編集ボタンと削除ボタン、ついでに閉じるボタンのHTML要素を追加
 
       var firstLotteryDay = date.format();
+      // var checkOutDay = date.format();
+      // var checkOutDayInt = parseInt(checkOutDay);
       var datepicker_start = document.getElementById("datepicker_start");
       datepicker_start.value = firstLotteryDay;
 
       var datepicker_start2 = document.getElementById("datepicker_start2");
       datepicker_start2.value = firstLotteryDay;
+
+      // var datepicker_end = document.getElementById("datepicker_end");
+      // datepicker_end.value = checkOutDayInt;
       var clalenderType =  document.getElementById("calender-type").value;
       if (clalenderType == 0) {
         // モーダルだし分け
