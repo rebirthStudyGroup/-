@@ -125,10 +125,68 @@ label.lottery-label-free-text {
   margin-bottom: 20px;
 }
 
+.lottery-goto-conf-btn {
+  width: 200px;
+  margin-bottom: 20px;
+  border:0;
+}
+
+.lottery-back-btn {
+  width: 150px;
+  margin-bottom: 20px;
+  box-shadow: 0px 3px #535353;
+  background:#646464;
+}
+.lottery-back-btn:hover {
+  width: 150px;
+  margin-bottom: 20px;
+  background:#646464;
+  box-shadow: 0px 3px #535353;
+}
+
+.conf_label {
+  float: left;
+  clear: both;
+  width: 150px;
+}
+
+.lottery-label-free-text-conf {
+  width: 320px;
+  height: auto;
+  overscroll-behavior:inherit;
+  
+}
+
+.lottery-card-body > p {
+  border-bottom: 1px solid #ffefe2;
+  width: 300px;
+  padding-bottom: 5px;
+  
+}
+
+.lottery-label-free-text {
+  margin-top: 16px;
+}
+
+.lottery-label-free-text > p {
+  background: #e9e7e7;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+
+
+
 .lottery-send {
   text-align: center;
   position: relative;
 }
+
+/* ========================
+
+確認モーダルフォーム
+
+===========================*/
 
 /* ========================
 
