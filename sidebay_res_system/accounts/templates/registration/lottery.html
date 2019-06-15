@@ -59,7 +59,7 @@
             </div>
             </div>
             <!-- ここからモーダル表示部分として追記 -->
-            <div id="calendarModal" class="modal fade">
+            <div id="calendarModal" class="modal fade"  data-backdrop="static">
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
@@ -75,13 +75,13 @@
                         <div class="card-body lottery-card-body">
                           <p>
                             <label class="lottery-label-num">
-                              人数<span class="required">*</span><input class="form-control" type="number" name="res_num" value="" min="1" max="10" required>
+                              人数<span class="required">*</span><input class="form-control" type="number" name="res_num" id="res_num" value="" min="1" max="10" required>
                             </label>
                           </p>
                           <p>
                             <label class="lottery-label-room">
                               希望のお部屋<span class="required">*</span>
-                              <select name="res_room" id="" class="form-control">
+                              <select name="res_room" id="res_room" class="form-control">
                                 <option value="0" selected>選択してください</option>
                                 <option value="6">6帖</option>
                                 <option value="8">8帖</option>
@@ -91,7 +91,7 @@
                           <p>
                             <label class="lottery-label-room">
                               利用形態<span class="required">*</span>
-                              <select name="res_usage" id="" class="form-control">
+                              <select name="res_usage" id="res_usage" class="form-control">
                                 <option value="0" selected>選択してください</option>
                                 <option value="1">家族</option>
                                 <option value="2">友人</option>
@@ -102,11 +102,11 @@
                             </label>
                           </p>
                           <p id="dateForm1">
-                            <label class="lottery-label-day">予約日（第1希望）<span class="required">*</span>
+                            <label class="lottery-label-day">予約日<span class="required">*</span>
                               <input class="lottery-days form-control" type="text" id="datepicker_start" size="20" name="res_check_in_date"
                                 placeholder="チェックイン" required>
-                              <input class="lottery-days form-control" type="text" id="datepicker_end" size="20" name="res_check_out_date"
-                                placeholder="チェックアウト" required>
+                              <!-- <input class="lottery-days form-control" type="text" id="datepicker_end" size="20" name="res_check_out_date"
+                                placeholder="チェックアウト" required> -->
                             </label>
                             <!-- <span id="addBtn1" onclick="addLotteryForm2();">+</span> -->
                           </p>
@@ -123,16 +123,16 @@
                             </label>
                             <span id="addBtn2" onclick="removeLotteryForm3();">-</span>
                           </p> -->
-                        <p>
+                        
                             <div class="form-group">
                                 <label class="lottery-label-free-text" for="#">ご希望
-                              <textarea id="textarea1" name="res_request" class="form-control"></textarea>
+                              <textarea id="free_textArea" name="res_request" class="form-control"></textarea>
                             </div>
                           </label>
-                        </p>
+                        
                         </div>
                         <div class="lottery-send">
-                          <button class="btn lottery-send-btn" type="submit" name="button">送信</button>
+                          <span class="btn lottery-goto-conf-btn" type="" name="button" onclick="confModalOpen();">内容の確認へ</span>
                         </div>
                       </div>
                     </form>
@@ -142,7 +142,7 @@
             </div>
       </div>
       <!-- 予約・二次予約フォーム -->
-      <div id="calendarModal2" class="modal fade">
+      <div id="calendarModal2" class="modal fade"  data-backdrop="static">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
@@ -158,13 +158,13 @@
                     <div class="card-body lottery-card-body">
                       <p>
                         <label class="lottery-label-num">
-                          人数<span class="required">*</span><input class="form-control" type="number" name="res_num" value="" min="1" max="10" required>
+                          人数<span class="required">*</span><input class="form-control" type="number" name="res_num" id="res_num2"  value="" min="1" max="10" required>
                         </label>
                       </p>
                       <p>
                         <label class="lottery-label-room">
                           希望のお部屋<span class="required">*</span>
-                          <select name="res_room" id="" class="form-control">
+                          <select name="res_room" id="res_room2" class="form-control">
                             <option value="0" selected>選択してください</option>
                             <option value="6">6帖</option>
                             <option value="8">8帖</option>
@@ -172,9 +172,9 @@
                         </label>
                       </p>
                       <p>
-                        <label class="lottery-label-room">
+                        <label class="lottery-label-usage">
                           利用形態<span class="required">*</span>
-                          <select name="res_usage" id="" class="form-control">
+                          <select name="res_usage" id="res_usage2" class="form-control">
                             <option value="0" selected>選択してください</option>
                             <option value="1">家族</option>
                             <option value="2">友人</option>
@@ -185,17 +185,22 @@
                         </label>
                       </p>
                       <p id="dateForm1">
-                        <label class="lottery-label-day">予約日（第1希望）<span class="required">*</span>
+                        <label class="lottery-label-day">予約日<span class="required">*</span>
                           <input class="lottery-days form-control" type="text" id="datepicker_start2" size="20" name="res_check_in_date"
                             placeholder="チェックイン" required>
-                          <input class="lottery-days form-control" type="text" id="datepicker_end" size="20" name="res_check_out_date"
-                            placeholder="チェックアウト" required>
+                          <!-- <input class="lottery-days form-control" type="text" id="datepicker_end" size="20" name="res_check_out_date"
+                            placeholder="チェックアウト" required> -->
                         </label>
                         <!-- <span id="addBtn1" onclick="addLotteryForm2();">+</span> -->
                       </p>
+                        <div class="form-group">
+                            <label class="lottery-label-free-text" for="#">ご希望
+                          <textarea id="free_textArea2" name="res_request" class="form-control"></textarea>
+                        </div>
+                      </label>
                     </div>
                     <div class="lottery-send">
-                      <button class="btn lottery-send-btn" type="submit" name="button">予約確定</button>
+                      <span class="btn lottery-goto-conf-btn" type="" name="button" onclick="confModalOpen();">内容の確認へ</span>
                     </div>
                   </div>
                 </form>
@@ -203,6 +208,72 @@
             </div>
           </div>
         </div>
+        <!-- 確認画面モーダル -->
+        <!-- サイズを同じにしないとUIが悪い -->
+        <div id="calendarModal3" class = "modal fade"  data-backdrop="static">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="label1">内容の確認</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form class="" action="" method="post">
+                  {% csrf_token %}
+                  <div class="card lottery-card">
+                    <div class="card-body lottery-card-body">
+                      <p>
+                        <label class="conf_label lottery-label-num_conf">
+                          人数
+                        </label>
+                        <span class="res_num_conf" id="num_conf"></span>
+                      </p>
+                      <p>
+                        <label class="conf_label lottery-label-room_conf">
+                          希望のお部屋:
+                          
+                        </label>
+                        <span class="res_room_conf" id="room_conf">希望の部屋の確認</span>
+                      </p>
+                      <p>
+                        <label class="conf_label lottery-label-room_conf">
+                          利用形態:
+                        </label>
+                        <span class="res_usage_conf" id="usage_conf">利用形態の確認</span>
+                      </p>
+                      <p id="dateForm1">
+                        <label class="conf_label lottery-label-day_conf">予約日:
+                          
+                          <!-- <input class="lottery-days form-control" type="text" id="datepicker_end" size="20" name="res_check_out_date"
+                            placeholder="チェックアウト" required> -->
+                        </label>
+                        <span class="res_day_conf" id="day_conf">日付の確認</span>
+                        <!-- <span id="addBtn1" onclick="addLotteryForm2();">+</span> -->
+                      </p>
+                      
+                          <div class="form-group">
+                              <label class="lottery-label-free-text" for="#">ご希望:
+                                <p>
+                                  <span name="res_request" class="lottery-label-free-text-conf" id="free_text">f小さい子どもがたくさんいます。できれば強度の高めの部屋を希望します。よろしくお願いいたします.小さい子どもがたくさんいます。できれば強度の高めの部屋を希望します。よろしくお願いいたします。</span> 
+                                </p> 
+                         
+                             </label>
+                            </div>
+                      
+                    </div>
+                    <div class="lottery-send">
+                      <button class="btn lottery-send-btn" type="submit" name="button">予約確定</button>
+                      <span class="btn lottery-back-btn" name="button" onclick="backForm();">入力に戻る</span>                 
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+     
         <div id="detail-area"></div>
      <footer>
          <div class="footer-image">
