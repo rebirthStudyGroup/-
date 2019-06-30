@@ -19,8 +19,8 @@ function titleTypeChange() {
     if (clalenderType == 0) {
       // 抽選エントリー画面
       if (!validationCheck()) {
-        errorAlertStr = errorAlert.join(',');
-        for (var i = 0; i < errorAlert.length; i++ ) {
+        errorAlertStr = errorAlert.join(",");
+        for (var i = 0; i < errorAlert.length + 1; i++ ) {
           errorAlertMsg = errorAlertStr.replace(",", "");
         }
         alert(errorAlertMsg);

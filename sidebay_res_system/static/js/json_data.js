@@ -44,5 +44,4 @@ var json_data = [
         subscriber4: '空き', //予定内容
         start: '2019-09-16'
       },
-    
   ];
