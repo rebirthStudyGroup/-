@@ -20,24 +20,29 @@ $( function () {
     console.log( getFutMonthDay );
     $( "#datepicker_start" ).datepicker( {
         minDate: ( ( getMonthDay + 1 ) - nowDate ) + "+2M", maxDate: ( getFutMonthDay - nowDate ) + "D" + "+3M",
-        dateFormat: 'yy年mm月dd日',
+        dateFormat: 'yy-mm-dd',
         showAnim: 'slideDown',
     } );
-    $( "#datepicker_end" ).datepicker( {
+    $( "#datepicker_start2" ).datepicker( {
         minDate: ( ( getMonthDay + 1 ) - nowDate ) + "+2M", maxDate: ( getFutMonthDay - nowDate ) + "D" + "+3M",
-        dateFormat: 'yy年mm月dd日',
+        dateFormat: 'yy-mm-dd',
         showAnim: 'slideDown',
     } );
-    $( "#datepicker1" ).datepicker( {
-        minDate: -23, maxDate: "6D",
-        dateFormat: 'yy年mm月dd日',
-        showAnim: 'slideDown',
-    } );
-    $( "#datepicker2" ).datepicker( {
-        minDate: -23, maxDate: "+1M +10D",
-        dateFormat: 'yy年mm月dd日',
-        showAnim: 'slideDown',
-    } );
+    // $( "#datepicker_end" ).datepicker( {
+    //     minDate: ( ( getMonthDay + 1 ) - nowDate ) + "+2M", maxDate: ( getFutMonthDay - nowDate ) + "D" + "+3M",
+    //     dateFormat:'yy-mm-dd',
+    //     showAnim: 'slideDown',
+    // } );
+    // $( "#datepicker1" ).datepicker( {
+    //     minDate: -23, maxDate: "6D",
+    //     dateFormat: 'yy-mm-dd',
+    //     showAnim: 'slideDown',
+    // } );
+    // $( "#datepicker2" ).datepicker( {
+    //     minDate: -23, maxDate: "+1M +10D",
+    //     dateFormat:'yy-mm-dd',
+    //     showAnim: 'slideDown',
+    // } );
     
 } );
 

@@ -3,5 +3,5 @@ from django.shortcuts import render
 # Create your views here.
 
 
-def login(request):
-    return render(request, 'registration/login.html', {})
+def REBGST_001(request):
+    return render(request, 'registration/REBGST_001.html', {})
