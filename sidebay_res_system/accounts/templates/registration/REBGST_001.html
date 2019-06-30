@@ -23,8 +23,31 @@
     </div>
     <!-- ログインボタンを押すと入力情報に間違いがなければメインページへ遷移する。 -->
         <button type="submit" class="btn">ログイン</button>
-        <a class="reset-pass" href="#">パスワードを忘れた方はこちら</a>
+        <a class="reset-pass" href="#" onclick="form_show();">パスワードを忘れた方はこちら</a>
   </form>
     </div>
+  <form action="">
+    <div class="reset_pass_form" id="reset-pass">
+      <div class="card">
+        <h5 class="reset_pass_title">パスワードの再発行</h5>
+          <label for="reset_pass">メールアドレスを入力してください。</label>
+          <div class="form-group">
+            <input type="email" class="form-control" id="" aria-describedby="emailHelp" name="reset_pass" placeholder="メールアドレス" required>
+          </div>
+            <button type="submit" class="btn">パスワードを再発行する</button>
+        </div>
+      </div>
+  </form>
+    
     </div>
+    <script>
+        function form_show() {
+          var resetPass = document.getElementById("reset-pass");
+          resetPass.classList.add("show");
+        }
+      
+      
+      </script>
 {% endblock content %}
+
+

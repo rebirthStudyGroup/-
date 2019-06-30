@@ -70,3 +70,33 @@ Sidebay予約システムという名前のcss
   color: rgb(34, 34, 32);
   opacity: 0.5;
 }
+
+/* ==========================
+パスワードの再発行
+============================ */
+
+/* パスワード再設定リンクを押すと
+発行フォームが現れる処理 */
+
+@keyframes show {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.reset_pass_form {
+  text-align: center;
+  display: none;
+}
+
+.reset_pass_form.show {
+  display: block;
+  animation: show 1s linear 0s;
+}
+
+.reset_pass {
+  margin: 8px 0;
+} 
