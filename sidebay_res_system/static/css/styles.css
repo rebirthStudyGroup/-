@@ -93,6 +93,7 @@ Sidebay予約システムという名前のcss
 }
 
 .reset_pass_form.show {
+  text-align: center;
   display: block;
   animation: show 1s linear 0s;
 }
