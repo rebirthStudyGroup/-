@@ -4,6 +4,10 @@ body {
 	-webkit-backface-visibility: hidden;
 }
 
+.wrap {
+  overflow: hidden;
+}
+
 .clear-fix {
   clear: both;
 }
@@ -43,11 +47,11 @@ body {
 ヘッダー画像
 ============================ */
 
-.top-image {
+/* .top-image {
   background: grey;
   height: 300px;
   text-align: center;
-}
+} */
 
 
 
@@ -87,6 +91,7 @@ body {
   box-shadow: 3px 3px 2px 2px #dbdbdb;
   backface-visibility:hidden;
   -webkit-backface-visibility: hidden;
+  max-width: 400px;
 }
 .content-box:hover {
   border: 1px solid grey;
@@ -96,10 +101,6 @@ body {
   background: #fff;
   border-radius: 8px;
   box-shadow: none;
-  -moz-transform: scale(1.03,1.03);
-  -webkit-transform: scale(1.03,1.03);
-  -o-transform: scale(1.03,1.03);
-  -ms-transform: scale(1.03,1.03);
   transition: 0.5s;
   backface-visibility:hidden;
   -webkit-backface-visibility: hidden;
@@ -120,27 +121,73 @@ body {
 	-webkit-backface-visibility: hidden;
 }
 
-.first-title {
-  margin-bottom: 0;
-  font-weight: bold;
-  color: rgb(43, 43, 43);
-  backface-visibility: hidden;
-	-webkit-backface-visibility: hidden;
+.info_box {
+  display: block;
+  margin-top:20px;
+  text-align: left;
+  border-bottom: #666 1px solid;
 }
 
-.second-title {
-  margin-bottom: 0;
+.info_box:last-child {
+  border-bottom:0;
+}
+
+.priority {
+  font-size: 20px;
   font-weight: bold;
-  color: rgb(43, 43, 43);
+  width: 300px;
+}
+
+.drawing,
+.stay_term,
+.number_of_room,
+.number_of_guests,
+.purpose
+ {
+  display: inline-flex;
+  width: 100%;
+  margin-top: 5px;
+}
+
+.stay_term {
+  height: 30px;
+}
+
+.stay_term > span {
+  padding-top: 3px;
+}
+
+label {
+  width: 120px;
+  text-align: left;
+  border-right: 3px greenyellow solid;
+  margin-bottom: 0;
   height: 24px;
-  backface-visibility: hidden;
-	-webkit-backface-visibility: hidden;
 }
 
-.drawing {
-  height: 60px;
-  backface-visibility: hidden;
-	-webkit-backface-visibility: hidden;
+.info_text {
+  text-align: left;
+  margin-left: 10px;
+  display: block;
+  width: 200px;
+}
+
+input[name="drawing_start"],
+input[name="drawing_end"],
+input[name="number_of_room"],
+input[name="number_of_guests"],
+input[name="purpose"] {
+  border: 1px solid #ccc;
+  padding: 3px;
+  border-radius: 3px;
+  height: 30px; 
+}
+
+.btn_area {
+  margin-left: 96px;
+  margin-top: 40px;
+  position: relative;
+  margin-right: 10px;
 }
 
 .btn  {
@@ -158,6 +205,25 @@ body {
 }
 .btn:active {
   background: orange;
+  color: #fff;
+  top: 3px;
+
+  box-shadow: none;
+  transition: 0.5s;
+}
+
+.grey_btn {
+  background: #cccccb;
+  border: #666 1px solid;
+  color: rgb(39, 39, 39);
+  box-shadow: 0px 3px #474746;
+}
+
+.grey_btn:hover {
+  background: rgb(36, 36, 36);
+}
+.grey_btn:active {
+  background: rgb(36, 36, 36);
   color: #fff;
   top: 3px;
 
@@ -229,37 +295,17 @@ section .card {
 }
 
 /* ========================
-ご利用規約
+各種モーダル
 ============================ */
 
-.agreement-box {
-  display: block;
-  width: 600px;
-  margin: 0 auto;
-  text-align: center;
-  margin-bottom: 50px;
+.lottery-card {
+  display: inline-block;
+}
+/* 申込確認 */
+.box1 {
+  /* display: inline-block; */
 }
 
-.agreement-btn {
-  background: #f4124c;
-}
-
-.agreement-btn {
-  background: #f4124c;
-  box-shadow: 0px 3px #ff3380;
-}
-
-.agreement-btn:active {
-  background: #f4124c;
-  color: #fff;
-  top: 3px;
-  box-shadow: none;
-  transition: 0.5s;
-}
-.agreement-btn:hover {
-  background: #f4124c;
-  color: #fff;
-}
 
 /* ========================
 トップに戻る
@@ -271,18 +317,19 @@ section .card {
     font-size: 77%;
 }
 #page-top a {
-    background: #666;
+    background: rgb(255, 191, 17);
     text-decoration: none;
     color: #fff;
-    width: 100px;
-    padding: 30px 0;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
     text-align: center;
     display: block;
-    border-radius: 5px;
+    line-height: 50px;
 }
-#page-top a:hover {
+#page-top a:active {
     text-decoration: none;
-    background: #999;
+    background: rgb(255, 87, 87);
 }
 
 
@@ -376,6 +423,35 @@ content-box群
     font-size: 14px;
     font-weight: 600;
     color: #fff;
+  }
+
+  label {
+    font-size: 12px;
+    width: 100px;
+  }
+
+  .info_text {
+    font-size: 12px;
+    text-align: left;
+    margin-left: 10px;
+    display: block;
+    width: 120px;
+  }
+  
+  input[name="drawing_start"],
+  input[name="drawing_end"],
+  input[name="number_of_room"],
+  input[name="number_of_guests"],
+  input[name="purpose"] {
+    border: 1px solid #ccc;
+    padding: 3px;
+    border-radius: 3px;
+    height: 28px; 
+  }
+
+  .btn_area {
+    margin-left: 40px;
+    margin-top: 10px;
   }
 
   section .lecture-content {

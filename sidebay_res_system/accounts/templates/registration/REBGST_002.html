@@ -31,6 +31,7 @@
     </header>
     
     <div class="container">
+            <p class="agreement-text">施設ご利用の際は必ず<a href="#"onclick="serviceModalOpen();">ご利用規約</a>をお読みになってからご利用ください</p>
         <div class="calender-type-select">
           <!-- 予約・抽選によってフォームを変える -->
             <select name="" id="calender-type" class="form-control" onchange="titleTypeChange();" onclick="reClarendar();">
@@ -272,7 +273,32 @@
             </div>
           </div>
         </div>
-     
+        <!-- ご利用規約モーダル -->
+        <div id="serviceModal" class="modal fade"  data-backdrop="static">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="label1">ご利用規約</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                 {% csrf_token %}
+                  <div class="card lottery-card">
+                    <div class="card-text-p">
+                     ご利用規約です。ご利用規約です。ご利用規約です。ご利用規約です。ご利用規約です。
+                     ご利用規約です。ご利用規約です。ご利用規約です。ご利用規約です。<br>
+                     ご利用規約です。ご利用規約です。ご利用規約です。<br>
+                     ご利用規約です。ご利用規約です。ご利用規約です。<br>
+                     ご利用規約です。<br>
+                     ご利用規約です。ご利用規約です。ご利用規約です。ご利用規約です。ご利用規約です。
+                     ご利用規約です。ご利用規約です。ご利用規約です。
+                </div>
+              </div>
+              </div>
+            </div>
+          </div>
         <div id="detail-area"></div>
      <footer>
          <div class="footer-image">
