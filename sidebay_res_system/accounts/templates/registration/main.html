@@ -15,6 +15,7 @@
               <ul class="navbar-nav">
                   <!-- <span class="sr-only">(current)</span>　現在の位置的なやつ -->
                   <!-- activ -->
+                  <li>{{ request.session.login_username }}</li>
                   <li class="nav-item ">
                       <a href="{% url 'lottery' %}">マイページ</a>
                   </li>
@@ -23,7 +24,7 @@
                   </li>
                   <li class="nav-item">
                       <!-- disableの指定なし -->
-                      <a href="{% url 'login' %}">ログアウト</a>
+                      <a href="{% url 'logout' %}">ログアウト</a>
                   </li>
               </ul>
           </div>

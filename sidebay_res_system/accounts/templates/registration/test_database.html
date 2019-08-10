@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>test画面</title>
+</head>
+<body>
+
+    {% for user in users %}
+        <li>(<a href="{% url 'test_reservation' user.mail_address %}">名前:{{ user.username }})</a> パスワード:{{ user.password }} メールアドレス:{{ user.mail_address }}</li>
+    {% endfor %}
+
+    <br>
+
+    <form action='test_database' method="POST">
+        {% csrf_token %}
+        名前：<br>
+        <input type="text" name="username"><br>
+        パスワード：<br>
+        <input type="text" name="password"><br>
+        メールアドレス：<br>
+        <input type="text" name="mail_address"><br>
+        <button type="submit">登録</button>
+    </form>
+
+    <a href='main'>ToTheTop</a>
+
+    <h5>{{ json_data }}</h5>
+
+</body>
+</html>

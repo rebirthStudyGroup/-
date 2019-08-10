@@ -6,47 +6,28 @@
       <h1 class="login-title">Sidebay予約システムにログイン</h1>
   <div class="card">
     <!-- メールアドレスとパスワードでログインをしてsideｰ米の抽選ページにいく -->
-  <form action="" method="post">
+  <form action="main" method="post">
+    {% csrf_token %}
     <div class="form-group">
 
       <!-- メールアドレスを入力 -->
       <!-- メールアドレスの形式でなければエラーにする -->
       <!-- 入力を必須にする -->
-      <input type="email" class="form-control" id="" aria-describedby="emailHelp" placeholder="メールアドレス" required>
+      <h6><font color="red">{{ error }}</font></h6>
+      <input type="email" name="mail_address" class="form-control" id="" aria-describedby="emailHelp" placeholder="メールアドレス" required {% if mail_address %} value={{ mail_address }} {% endif %}>
 
     </div>
     <div class="form-group">
 
       <!-- パスワードを入力 -->
       <!-- 入力を必須にする -->
-      <input type="password" class="form-control" id="" placeholder="パスワード" required>
+      <input type="password" name="password" class="form-control" id="" placeholder="パスワード" required>
     </div>
     <!-- ログインボタンを押すと入力情報に間違いがなければメインページへ遷移する。 -->
         <button type="submit" class="btn">ログイン</button>
-        <a class="reset-pass" href="#" onclick="form_show();">パスワードを忘れた方はこちら</a>
+        <a class="reset-pass" href="#">パスワードを忘れた方はこちら</a>
   </form>
+    <a href="{% url 'test_database' %}">テストデータ作成</a>
     </div>
-  <form action="" method="post">
-    <div class="reset_pass_form" id="reset-pass">
-      <div class="card">
-        <h5 class="reset_pass_title">パスワードの再発行</h5>
-          <label for="reset_pass">メールアドレスを入力してください。</label>
-          <div class="form-group">
-            <input type="email" class="form-control" id="" aria-describedby="emailHelp" name="reset_pass" placeholder="メールアドレス" required>
-          </div>
-            <button type="submit" class="btn">パスワードを再発行する</button>
-        </div>
-      </div>
-  </form>
     </div>
-    <script>
-        function form_show() {
-          var resetPass = document.getElementById("reset-pass");
-          resetPass.classList.add("show");
-        }
-      
-      
-      </script>
 {% endblock content %}
-
-
