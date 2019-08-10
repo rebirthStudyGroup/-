@@ -215,7 +215,14 @@ $(document).ready(function() {
       $("#calendar").fullCalendar("addEventSource", calEvent);
     },
 
-    events : json_data,
+    events : {
+        url: 'create_json_info',
+        type: 'GET',
+        error: function() {
+        $('#scrpit-warning').show;
+        console.info("a");
+        }
+    },
     // events: [
     //   {
     //     id: 1,
