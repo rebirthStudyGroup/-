@@ -1,3 +1,6 @@
+
+
+
 from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
@@ -7,6 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
 from django.contrib.auth.base_user import BaseUserManager
+from abc import ABCMeta, abstractmethod
 
 # 試しにメールアドレスでのログイン機能を実装するためのコードを書いてみる
 class UserManager(BaseUserManager):
@@ -49,7 +53,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     ユーザ情報を提供するDTOクラス
     """
     user_id = models.IntegerField(_('ユーザID'), primary_key=True)
-    username = models.CharField(_('ユーザ名'), unique=True, max_length=40, default=None, blank=True)
+    username = models.CharField(_('ユーザ名'), max_length=40, default=None, blank=True)
     mail_address = models.EmailField(_('メールアドレス'), unique=True, default=None)
     password = models.CharField(_('パスワード'), max_length=10, default=None) #パスワードの入力制限は設けるか
 
@@ -84,22 +88,24 @@ class User(AbstractBaseUser, PermissionsMixin):
         :param password: 画面入力されたパスワード
         :return: 引数のパスワードとユーザーインスタンスが持つパスワードが一致するかどうかチェックする
         """
-        user = UserDao.get_user(str(self.mail_address))
+        user = UserDao.get_user(str(self.user_id))
         if user is not None:
             return password == user.password
         return False
+
+
 
 class UserDao:
     """Userオブジェクトを操作するクラス"""
 
     @staticmethod
-    def get_user(mail_address: str) -> User:
+    def get_user(user_id: int) -> User:
         """Userオブジェクトを取得
 
         :param mail_address メールアドレス
         """
         try:
-            return User.objects.get(mail_address=mail_address)
+            return User.objects.get(user_id=user_id)
         except ObjectDoesNotExist:
             print("対象のオブジェクトがDBに存在しません")
 
@@ -117,6 +123,11 @@ class UserDao:
         user.save()
 
     @staticmethod
+    def delete_user_by_user_id(user_id: int):
+        """ユーザIDに紐づくユーザを削除する"""
+        User.objects.filter(user_id=user_id).delete()
+
+    @staticmethod
     def test_session():
         return Session.objects.all()
 
@@ -128,49 +139,147 @@ class Lottery_pool(models.Model):
     user_id = models.IntegerField(_('ユーザID'))
     username = models.CharField(_('ユーザ名'), max_length=40)
     check_in_date = models.DateField(_('チェックイン日'))
+    check_out_date = models.DateField(_('チェックアウト日'))
     number_of_rooms = models.SmallIntegerField(_('部屋数'))
     number_of_guests = models.SmallIntegerField(_('宿泊人数'))
-    priority = models.SmallIntegerField(_('希望'))
+    priority = models.SmallIntegerField(_('希望') ,default=1)
     purpose = models.CharField(_('利用形態'), max_length=10, default=None)
+
+class LotDao:
+    """Lottery_poolオブジェクトを操作するクラス"""
+
+    @staticmethod
+    def create_res_by_in_and_out(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date, number_of_rooms: int, number_of_guests: int, purpose: str):
+        # TODO: 文字のベタ打ちを直す
+        lot = Lottery_pool()
+        lot.user_id = user_id
+        lot.username = UserDao.get_user(user_id).username
+        lot.check_in_date = check_in_date
+        lot.check_out_date = check_out_date
+        lot.number_of_rooms = number_of_rooms
+        lot.number_of_guests = number_of_guests
+        lot.purpose = purpose
+        lot.request_status = 1
+        lot.expire_date = datetime.date.today() + datetime.timedelta(days=31)
+        lot.save()
+
+        # 滞在日数を導出
+        visit_duration = (check_out_date - check_in_date).days
+
+        # 宿泊データを作成
+        LodginDao.create_lodging_data(lot.reservation_id, lot.user_id, check_in_date , visit_duration)
+
+    @staticmethod
+    def get_res_list(user_id: int) -> list:
+        """Lotteryオブジェクトを取得
+
+        :param user_id ユーザID
+        """
+        return Lottery_pool.objects.filter(user_id=user_id)
+
+    @staticmethod
+    def get_res_by_reservation_id(reservation_id:int):
+        """Lotteryオブジェクトを取得
+
+        :param reservation_id 予約ID
+        """
+        return Lottery_pool.objects.get(reservation_id=reservation_id)
+
+    @staticmethod
+    def delete_by_reservation_id(reservation_id: int):
+        """Lotteryオブジェクトを削除"""
+        Lottery_pool.objects.filter(reservation_id=reservation_id).delete()
+
+    @staticmethod
+    def delete_by_user_id(user_id: int):
+        """Lotteryオブジェクトを削除"""
+        Lottery_pool.objects.filter(user_id=user_id).delete()
+
 
 class Reservations(models.Model):
     """
     予約情報を提供するDTOクラス
     """
-    reservation_id =models.IntegerField(_('予約ID'), primary_key=True)
+    reservation_id = models.IntegerField(_('予約ID'), primary_key=True)
     user_id = models.IntegerField(_('ユーザID'))
     username = models.CharField(_('ユーザ名'), max_length=40)
     check_in_date = models.DateField(_('チェックイン日'))
+    check_out_date = models.DateField(_('チェックアウト日'))
     number_of_rooms = models.SmallIntegerField(_('部屋数'))
     number_of_guests = models.SmallIntegerField(_('宿泊人数'))
     purpose = models.CharField(_('利用形態'), max_length=10, default=None)
+    lottery_flag = models.BooleanField(_('抽選フラグ'), default=True)
     request_status = models.SmallIntegerField(_('申込ステータス'))
     expire_date = models.DateField(_('有効期限'))
 
 class ResDao:
-    """Userオブジェクトを操作するクラス"""
+    """Reservationsオブジェクトを操作するクラス"""
 
     @staticmethod
-    def create_res(user: User, check_in_date: datetime.date, stay_term: int, number_of_rooms: int, number_of_guests: int, purpose: str):
+    def create_res_by_in_and_out(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date, number_of_rooms: int, number_of_guests: int, purpose: str):
+        # TODO: 文字のベタ打ちを直す　→ 直接予約情報作成は使わない削除予定
         res = Reservations()
-        res.mail_address = user
+        res.user_id = user_id
+        res.username = UserDao.get_user(user_id).username
         res.check_in_date = check_in_date
-        res.stay_term = stay_term
+        res.check_out_date = check_out_date
         res.number_of_rooms = number_of_rooms
         res.number_of_guests = number_of_guests
         res.purpose = purpose
+        res.request_status = 1
+        res.expire_date = datetime.date.today() + datetime.timedelta(days=31)
+        res.save()
+
+        # 滞在日数を導出
+        visit_duration = (check_out_date - check_in_date).days
+
+        # 宿泊データを作成
+        LodginDao.create_lodging_data(res.reservation_id, res.user_id, check_in_date , visit_duration)
+
+    @staticmethod
+    def create_res_by_lottery(reservation_id: int):
+        """抽選情報から予約情報を作成する"""
+        lot = LotDao.get_res_by_reservation_id(reservation_id)
+
+        res = Reservations()
+        res.reservation_id = lot.reservation_id
+        res.user_id = lot.user_id
+        res.username = UserDao.get_user(lot.user_id).username
+        res.check_in_date = lot.check_in_date
+        res.check_out_date = lot.check_out_date
+        res.number_of_rooms = lot.number_of_rooms
+        res.number_of_guests = lot.number_of_guests
+        res.purpose = lot.purpose
+        res.request_status = 1
+        res.expire_date = datetime.date.today() + datetime.timedelta(days=31)
         res.save()
 
     @staticmethod
-    def get_res_list(user: User) -> list:
-        """Userオブジェクトを取得
+    def delete_by_reservation_id(reservation_id: int):
+        """Lotteryオブジェクトを削除"""
+        Reservations.objects.filter(reservation_id=reservation_id).delete()
+
+    @staticmethod
+    def delete_by_user_id(user_id: int):
+        """Lotteryオブジェクトを削除"""
+        Reservations.objects.filter(user_id=user_id).delete()
+
+    @staticmethod
+    def get_res_list(user_id: int) -> list:
+        """ユーザIDに紐づくReservationオブジェクトを取得
 
         :param mail_address メールアドレス
         """
-        return Reservations.objects.filter(mail_address=user)
+        return Reservations.objects.filter(user_id=user_id)
+
+    @staticmethod
+    def get_res_by_year_and_month(year:int, month:int):
+        """引数の年月に紐づく予約情報を取得する"""
+        return Reservations.objects.filter(check_in_date__year=year).filter(check_in_date__month=month)
 
     @staticmethod
     def get_res():
+        """ユーザ情報でソートした予約情報を取得する"""
         return Reservations.objects.order_by('username')
 
     @staticmethod
@@ -190,18 +299,36 @@ class ResDao:
         """
         pass
 
-class Inventory(models.Model):
-    """
-    備品マスタ情報を提供するDTOクラス
-    """
-    inventory_name = models.TextField()
-    description = models.TextField()
+class Lodging(models.Model):
+    """宿泊日数情報を提供するDTOクラス(予約クラスの子クラス)"""
+    reservation_id = models.IntegerField(_('予約ID'))
+    user_id = models.IntegerField(_("ユーザID"))
+    lodging_date = models.DateField(_('宿泊日'))
 
-class Inventory_list(models.Model):
-    """
-    備品情報を提供するDTOクラス
-    """
-    inventory_name = models.ForeignKey(
-        'Inventory',
-        on_delete=models.CASCADE,
-    )
+class LodginDao:
+
+    @staticmethod
+    def get_lodging_by_reservation_id(reservation_id:int):
+        """予約IDに紐づく宿泊エンティティのQuerySetを返却"""
+        return Lodging.objects.filter(reservation_id=reservation_id)
+
+    @staticmethod
+    def create_lodging_data(reservation_id: int, user_id: int, check_in_date: datetime.date , visit_duration: int):
+        """予約エンティティと滞在日数を元に、宿泊エンティティを新規作成"""
+
+        for vis_day in range(visit_duration):
+            lodging = Lodging()
+            lodging.user_id = user_id
+            lodging.reservation_id = reservation_id
+            lodging.lodging_date = check_in_date + datetime.timedelta(days=vis_day)
+            lodging.save()
+
+    @staticmethod
+    def delete_by_reservation_id(reservation_id: int):
+        """Lodgingオブジェクトを削除"""
+        Lodging.objects.filter(reservation_id=reservation_id).delete()
+
+    @staticmethod
+    def delete_by_user_id(user_id: int):
+        """Lotteryオブジェクトを削除"""
+        Lodging.objects.filter(user_id=user_id).delete()

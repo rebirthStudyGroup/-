@@ -1,5 +1,6 @@
 from django.contrib.auth import login
 from django.core.mail import BadHeaderError, send_mail
+from accounts.models import UserDao, ResDao, LodginDao
 
 def login_user(request, user):
     login(request, user)

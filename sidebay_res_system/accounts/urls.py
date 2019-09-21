@@ -8,11 +8,16 @@ urlpatterns = [
     path(r'lottery', views.lottery, name='lottery'),
     path(r'create_json_info', views.create_json_info, name='create_json_info'),
     path(r'login', views.login, name='login'),
-    path(r'logout', views.logout, name='logout'),
+    path(r'logout', views.logout_user, name='logout'),
 
-    # データベース作成用URL
-    path(r'test_reservation/<str:mail_address>/', views.test_reservation, name="test_reservation"),
-    path(r'test_reservation/<str:mail_address>/test_register_res', views.test_register_res, name="test_register_res"),
-    path(r'test_reservation/<str:mail_address>/main', views.get_back_to_main_from_test_register, name="get_back_to_main_from_test_register"),
+    # 予約情報管理用URL
+    path(r'test_reservation/<str:user_id>/', views.test_reservation, name="test_reservation"),
+    path(r'test_reservation/<str:user_id>/test_database', views.test_get_back_database, name="test_get_back_database"),
+    path(r'test_reservation/<str:user_id>/register_reservation', views.register_reservation, name="register_reservation"),
+    path(r'test_reservation/<str:user_id>/turn_lottery_into_reservation', views.turn_lottery_into_reservation, name="turn_lottery_into_reservation"),
+    path(r'test_reservation/<str:user_id>/delete_lottery_or_reservation', views.delete_lottery_or_reservation, name="delete_lottery_or_reservation"),
+
+    # ユーザ情報管理用URL
     path(r'test_database', views.test_database, name="test_database"),
+    path(r'delete_user', views.delete_user, name="delete_user")
 ]
