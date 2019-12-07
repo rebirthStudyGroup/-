@@ -12,6 +12,12 @@ from django.contrib.sessions.models import Session
 from django.contrib.auth.base_user import BaseUserManager
 from abc import ABCMeta, abstractmethod
 
+from django.db import connection
+
+TOBEDETERMINED = 0
+DETERMINED = 1
+CANCEL = 2
+
 # 試しにメールアドレスでのログイン機能を実装するためのコードを書いてみる
 class UserManager(BaseUserManager):
     """ユーザーマネージャー"""
@@ -131,6 +137,11 @@ class UserDao:
     def test_session():
         return Session.objects.all()
 
+    @staticmethod
+    def update_user_password(user: User, password:str):
+        user.password = password
+        user.save()
+
 class Lottery_pool(models.Model):
     """
     抽選申込情報を提供するDTOクラス
@@ -167,7 +178,7 @@ class LotDao:
         visit_duration = (check_out_date - check_in_date).days
 
         # 宿泊データを作成
-        LodginDao.create_lodging_data(lot.reservation_id, lot.user_id, check_in_date , visit_duration)
+        LodginDao.create_lodging_data(lot.reservation_id, lot.user_id, check_in_date , visit_duration, lot.number_of_rooms)
 
     @staticmethod
     def get_res_list(user_id: int) -> list:
@@ -194,6 +205,7 @@ class LotDao:
     def delete_by_user_id(user_id: int):
         """Lotteryオブジェクトを削除"""
         Lottery_pool.objects.filter(user_id=user_id).delete()
+
 
 
 class Reservations(models.Model):
@@ -234,7 +246,7 @@ class ResDao:
         visit_duration = (check_out_date - check_in_date).days
 
         # 宿泊データを作成
-        LodginDao.create_lodging_data(res.reservation_id, res.user_id, check_in_date , visit_duration)
+        LodginDao.create_lodging_data(res.reservation_id, res.user_id, check_in_date , visit_duration, res.number_of_rooms)
 
     @staticmethod
     def create_res_by_lottery(reservation_id: int):
@@ -253,6 +265,49 @@ class ResDao:
         res.request_status = 1
         res.expire_date = datetime.date.today() + datetime.timedelta(days=31)
         res.save()
+
+    @staticmethod
+    def check_overflowing_lodging_date(check_in_date: datetime.date, check_out_date: datetime.date) -> bool:
+        """指定日の部屋数があふれていないかチェック"""
+
+        rooms = {}
+
+        stay_duration = (check_out_date - check_in_date).days
+
+        # 宿泊日に部屋数が4部屋以上になってないかチェック
+        for stay_number in range(stay_duration):
+            stay_number += 1
+            lodging_date = check_in_date + datetime.timedelta(days=stay_number)
+            rooms[lodging_date] = 0
+
+            # 指定の日付に紐づく宿泊エンティティを取得
+            lodgings = LodginDao.get_lodging_date_by_year_and_month_and_day(lodging_date.year, lodging_date.month, lodging_date.day)
+
+            # 指定の日付の部屋数を全て合算した数値を取得
+            rooms[lodging_date] = sum([lodging.number_of_rooms for lodging in lodgings])
+
+            # 部屋数が5部屋以上となった場合 False を返却
+            if rooms[lodging_date] > 4:
+                return False
+
+        # すべての宿泊日で部屋数が4部屋以内に収まれば True を返却
+        return True
+
+    @staticmethod
+    def create_res_as_second_reservation(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date, number_of_rooms: int, number_of_guests: int, purpose: str):
+        """二次申込として予約を確定"""
+        # 予約テーブルをロック
+        with connection.cursor() as cursor:
+            cursor.execute("LOCK TABLES %s READ", "accounts_reservations")
+            try:
+                if ResDao.check_overflowing_lodging_date(check_in_date, check_out_date):
+                    ResDao.create_res_by_in_and_out(user_id, check_in_date, check_out_date, number_of_rooms, number_of_guests, purpose)
+                    return True
+            finally:
+                cursor.execute("UNLOCK TABLES")
+
+        return False
+
 
     @staticmethod
     def delete_by_reservation_id(reservation_id: int):
@@ -291,19 +346,27 @@ class ResDao:
         """
         return Reservations.objects.filter(check_in_date__range=month)
 
-    def del_res_by_month(month: int):
-        """
-        引数の月度の予約情報を削除する
-        :param month:対象月度
-        :return:
-        """
-        pass
+    @staticmethod
+    def confirm_res(reservation_id):
+        """引数の予約IDのステータスを本申込に変更する"""
+        reservations = ResDao.get_by_reservation_id(reservation_id)
+        for reservation in reservations:
+            reservation.request_status = DETERMINED
+            reservation.save()
+
+    @staticmethod
+    def get_by_reservation_id(reservation_id: int):
+        """引数の予約IDに紐づく予約情報を取得する"""
+        return Reservations.objects.filter(reservation_id=reservation_id)
+
+
 
 class Lodging(models.Model):
     """宿泊日数情報を提供するDTOクラス(予約クラスの子クラス)"""
     reservation_id = models.IntegerField(_('予約ID'))
     user_id = models.IntegerField(_("ユーザID"))
     lodging_date = models.DateField(_('宿泊日'))
+    number_of_rooms = models.SmallIntegerField(_('部屋数'), default=1)
 
 class LodginDao:
 
@@ -313,7 +376,7 @@ class LodginDao:
         return Lodging.objects.filter(reservation_id=reservation_id)
 
     @staticmethod
-    def create_lodging_data(reservation_id: int, user_id: int, check_in_date: datetime.date , visit_duration: int):
+    def create_lodging_data(reservation_id: int, user_id: int, check_in_date: datetime.date , visit_duration: int, number_of_rooms: int):
         """予約エンティティと滞在日数を元に、宿泊エンティティを新規作成"""
 
         for vis_day in range(visit_duration):
@@ -321,7 +384,17 @@ class LodginDao:
             lodging.user_id = user_id
             lodging.reservation_id = reservation_id
             lodging.lodging_date = check_in_date + datetime.timedelta(days=vis_day)
+            lodging.number_of_rooms = number_of_rooms
             lodging.save()
+
+    @staticmethod
+    def get_lodging_date_by_year_and_month_and_day(year: int, month: int, day: int):
+        """予約年月日をもとに、宿泊日エンティティを取得"""
+        return Lodging.objects \
+            .filter(check_in_date__year=year) \
+            .filter(check_in_date__month=month) \
+            .filter(check_in_date__day=day)
+
 
     @staticmethod
     def delete_by_reservation_id(reservation_id: int):

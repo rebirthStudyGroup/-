@@ -1,15 +1,9 @@
-from django.shortcuts import render
 from django.template.response import TemplateResponse
 from accounts.models import User, UserDao, Reservations, ResDao, Lodging, LodginDao, Lottery_pool, LotDao
-from django.shortcuts import redirect
 from accounts.util import test_send_email, send_password
 import datetime
-from dateutil.relativedelta import relativedelta
-from django.http.response import JsonResponse
 from django.http import HttpResponseRedirect
-from django.views.decorators.csrf import ensure_csrf_cookie
 from django.urls import reverse
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.sessions.models import Session
 
 from .util import login_user
@@ -23,23 +17,22 @@ KARA = ""
 URL_REBGST001 = 'app/registration/REBGST_001.html'
 MAIN_SCREEN = "app/registration/main.html"
 URL_REBGST002 = "app/registration/REBGST_002.html"
+URL_REBGST003 = "app/registration/REBGST_003.html"
 TEST_SCREEN = "app/registration/test_database.html"
 TEST_RES_SCREEN="app/registration/test_reservation.html"
 
+"""抽選フラグ"""
+ERROR = 0
+LOTTERY = 1
+SECOND_APP = 2
 
-def check_login_user(request) -> TemplateResponse:
-    """セッション情報にログインユーザ情報が存在するかを確認"""
-    if not LOG_USR in request.session:
-        return TemplateResponse(request, URL_REBGST001, {})
-
-
-def top(request):
-    """ログイン画面を表示"""
+def init_login_screen(request):
+    """ログイン処理を実施"""
     return TemplateResponse(request, URL_REBGST001, {})
 
 
-def main(request):
-    """ログイン画面からログイン処理を実施。
+def push_login_button(request):
+    """初期処理、ログイン画面からログイン処理を実施。
     ・ID、パスワードが登録情報と一致しない場合、エラーメッセージをログイン画面に表示
     ・ID、パスワードが登録情報と一致する場合、予約画面へ遷移
     """
@@ -63,6 +56,7 @@ def main(request):
                 request.session[LOG_NAME] = user.username
                 request.session[LOG_MAIL] = user.mail_address
 
+                print("login successed!!")
                 return TemplateResponse(request, URL_REBGST002)
             # ユーザID、パスワードが登録情報と一致しない場合、ログイン画面を表示
             else:
@@ -74,26 +68,154 @@ def main(request):
             return TemplateResponse(request, URL_REBGST001,
                                     {"error": "Your username was not available!!",
                                      "user_id": user_id})
-    # ログイン画面以外からアクセスした場合、ログイン画面を表示
+    # 初期処理の場合、ログイン画面を表示
     else:
         return TemplateResponse(request, URL_REBGST001, {})
 
-def lottery(request):
-    """予約日入力画面を表示"""
+def reset_password(request):
+    """パスワードリセット"""
+
+    # ユーザID、メールアドレスを取得
+    user_id = request.POST.get("user_id", "")
+    mail_address = request.POST.get("mail_address", "")
+
+    # ユーザ情報をDBから取得
+    target_user = UserDao.get_user(user_id)
+
+    # ユーザ情報のメールアドレスと画面から取得したメールアドレスが一致するかチェック
+    if mail_address != target_user.mail_address:
+        return TemplateResponse(request, URL_REBGST001,
+                                {"error": "メールアドレスが登録されたメールアドレスと一致しません"})
+
+    #TODO 汎用テーブルからパスワード初期値を取得
+    password = "1234"
+
+    #DBのユーザパスワードを初期値に更新
+    UserDao.update_user_password(target_user, password)
+
+    #TODO 登録のメールアドレスにパスワード初期化の旨を送信
+    print("仮：メールアドレスにパスワード初期値を送信")
+
+    return TemplateResponse(request, URL_REBGST001, {})
+
+def init_res_top_screen(request):
+    """予約日入力画面の初期処理"""
 
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
-    check_login_user(request)
-
-    print("session情報を表示")
-    for session_info in UserDao.test_session():
-        print(session_info.get_decoded())
+    __check_login_user(request)
 
     return TemplateResponse(request, URL_REBGST002, {})
 
-def lottery_sample():
+def __check_login_user(request) -> TemplateResponse:
+    """セッション情報にログインユーザ情報が存在するかを確認"""
+
+    if not LOG_USR in request.session:
+        return TemplateResponse(request, URL_REBGST001, {})
+
+def puth_res_app_button(request):
+    """ログイン画面からログイン処理を実施。
+
+    """
     pass
 
-def request_password(request):
+def init_my_page_screen(request):
+    """ログイン画面からログイン処理を実施。
+
+    """
+    pass
+
+def push_res_app_button(request):
+    """予約を実施
+
+    """
+    user_id = request.session[LOG_USR]
+    check_in_date = datetime.date.fromisoformat(request.POST.get("check_in_date", ""))
+    check_out_date = datetime.date.fromisoformat(request.POST.get("check_out_date", ""))
+    number_of_rooms = request.POST.get("number_of_rooms", "")
+    purpose = request.POST.get("purpose", "")
+
+    error = ""
+
+    #注意：現時点では宿泊人数を使用しないため、常に0を入力
+    number_of_guests = 0
+
+    # 抽選状況を取得
+    app_status_code = __get_app_status_code(check_in_date)
+
+    # 予約月度が過去月度の場合、エラー情報を画面に返却
+    if app_status_code == ERROR:
+        error = "予約申込対象期間外です"
+
+    # 抽選の場合
+    if app_status_code == LOTTERY:
+        LotDao.create_res_by_in_and_out(user_id, check_in_date, check_out_date, number_of_rooms, number_of_guests,
+                                        purpose)
+
+    # 二次申込の場合
+    if app_status_code == SECOND_APP:
+        if not ResDao.create_res_as_second_reservation(user_id, check_in_date, check_out_date, number_of_rooms, number_of_guests, purpose):
+            error = "二次申込が出来ませんでした"
+
+    return TemplateResponse(request, URL_REBGST002, {"error": error})
+
+
+def __get_app_status_code(check_in_date:datetime.date) -> int:
+    """抽選か二次申込かを判定"""
+
+    result = 0
+
+    # 本申込締切日
+    DEAD_LINE = 10
+
+    # 今月の月度
+    today = datetime.date.today()
+    this_month = today.month
+    this_date = today.day
+
+    # 予約申込時の月度
+    res_month = check_in_date.month
+    res_date = check_in_date.day
+
+    # 抽選か二次申込かの判断
+    # 本日より過去日付の場合
+    if today <= check_in_date:
+        pass
+    # 翌々月以降の場合
+    elif res_month > this_month + 1:
+        result = LOTTERY
+    # 当月の場合
+    elif this_month == res_month:
+        result = SECOND_APP
+    # 翌月の場合
+    else:
+        if res_date >= DEAD_LINE:
+            result = SECOND_APP
+        else:
+            pass
+
+    return result
+
+def cancel_res_app(request):
+    """抽選申込をキャンセル"""
+    reservation_id = request.POST.get("reservation_id", "")
+
+    if reservation_id:
+        LotDao.delete_by_reservation_id(reservation_id)
+        LodginDao.delete_by_reservation_id(reservation_id)
+
+    return TemplateResponse(request, URL_REBGST003, {"error":""})
+
+def confirm_res_app(request):
+    """予約の確定（本申込期間）"""
+    reservation_id = request.POST.get("reservation_id", "")
+
+    if reservation_id:
+        LotDao.delete_by_reservation_id(reservation_id)
+        LodginDao.delete_by_reservation_id(reservation_id)
+
+    return TemplateResponse(request, URL_REBGST003)
+
+def init_password(request):
     """画面側で入力したメールアドレスにパスワードを送信"""
 
     mail_address = request.POST.get("mail_address", "")
@@ -129,10 +251,7 @@ def test_database(request):
     # 一覧表示するユーザー情報を取得
     users = UserDao.get_users()
 
-    # TODO 削除予定
-    json_data = JsonUtil.create_json_data(2019, 8)
-
-    return TemplateResponse(request, TEST_SCREEN, {"users": users, "json_data": json_data})
+    return TemplateResponse(request, TEST_SCREEN, {"users": users, "json_data": None})
 
 def test_get_back_database(request, user_id):
     """予約画面からユーザー一覧画面へ戻る"""
@@ -244,71 +363,3 @@ def get_back_to_main_from_test_register(request, user_id):
     users = UserDao.get_users()
 
     return TemplateResponse(request, URL_REBGST001, {})
-
-@ensure_csrf_cookie
-def create_json_info(request):
-
-    # テスト用に月度を6月に変更しておく
-    target_day = datetime.date.today() - relativedelta(months=1)
-
-    # 結果を格納する変数
-    data = []
-
-    # 取り敢えず直近の5か月分(当月から4か月先まで)のjsonデータを取得
-    for i in range(5):# 0～4までの数列
-        next_day = target_day + relativedelta(months=i)
-        next_month = next_day.month
-        next_year = next_day.year
-        data.extend(JsonUtil.create_json_data(next_year, next_month))
-
-    return JsonResponse(data, safe=False)
-
-
-
-class JsonUtil:
-    """
-    ユーザー情報をjson形式に作成するクラス
-    """
-
-    @staticmethod
-    def create_json_data(year: int, month: int):
-        """
-        カレンダー表示用のjsonデータを作成する
-        :param month: 取得対象となるjsonデータ
-        :return: list形式のjsonデータ
-        """
-
-        IN_USE = "空き状況：×"
-        AVAILABLE = "空き状況：△"
-        VACANT = "空き状況：〇"
-        RES_DATE = "start"
-        USER = "subscriber"
-        ROOMS = "title"
-
-        # key = 日付情報、value = タイトル、予約者、日付情報の辞書型を作成
-        reservation_dict = {}
-
-        res_list = ResDao.get_res_by_year_and_month(year, month)
-
-        # 予約情報のQuerySetを取得からjson情報を作成する
-        for res_set in res_list:
-
-            # 予約情報が持つ連泊数ごとにjsonレコードを作成・追記
-            for lodging_date in LodginDao.get_lodging_by_reservation_id(res_set.reservation_id):
-
-                # チェックイン日と連泊日数をもとに、キーとなる日付を取得
-                res_date = lodging_date.lodging_date.strftime('%Y-%m-%d')
-
-                json_data = reservation_dict.setdefault(res_date, {RES_DATE:res_date, ROOMS: 0})
-                subscriber = USER + str(len(json_data) - 1)
-                json_data[subscriber] = UserDao.get_user(res_set.user_id).username
-                json_data[ROOMS] = json_data[ROOMS] + res_set.number_of_rooms
-
-        for res_inf in reservation_dict.values():
-            if res_inf[ROOMS] == 4:
-                res_inf[ROOMS] = IN_USE
-            else:
-                res_inf[ROOMS] = VACANT
-
-        # テスト用にreturnを実施
-        return list(reservation_dict.values())

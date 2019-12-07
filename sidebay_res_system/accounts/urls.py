@@ -1,13 +1,28 @@
 from django.urls import path
-from . import views
+from . import views, util
 
 urlpatterns = [
-    path('', views.main, name='top'),
-    path(r'main', views.main, name='main'),
-    # 以下テスト
-    path(r'lottery', views.lottery, name='lottery'),
-    path(r'create_json_info', views.create_json_info, name='create_json_info'),
-    path(r'login', views.login, name='login'),
+
+    # ログイン画面
+    path('', views.init_login_screen, name='top'),
+    path(r'push_login_button', views.push_login_button, name='main'),
+    path(r'reset_password', views.init_password, name='reset_password'),
+
+    # 予約トップ画面
+    path(r'init_res_top_screen', views.init_res_top_screen, name='init_res_top_screen'),
+
+    # マイページ画面
+    path(r'init_my_page_screen', views.init_my_page_screen, name='init_my_page_screen'),
+    path(r'cancel_res_app', views.cancel_res_app, name='cancel_res_app'),
+
+    # 予約入力画面
+    path(r'push_res_app_button', views.push_res_app_button, name='push_res_app_button'),
+
+    # JSON操作
+    path(r'get_all_res_info', util.get_all_res_info, name='create_json_info'),
+    path(r'get_login_user_res_info', util.get_login_user_res_info, name='get_login_user_res_info'),
+
+    # path(r'login', views.login, name='login'),
     path(r'logout', views.logout_user, name='logout'),
 
     # 予約情報管理用URL
@@ -21,3 +36,6 @@ urlpatterns = [
     path(r'test_database', views.test_database, name="test_database"),
     path(r'delete_user', views.delete_user, name="delete_user")
 ]
+
+
+
