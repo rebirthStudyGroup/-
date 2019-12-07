@@ -55,14 +55,17 @@ from django.http.response import JsonResponse
 @ensure_csrf_cookie
 def get_all_res_info(request):
 
+    # 日付を取得
+    target_day_str = request.GET.get("yyyymm")
+
     # テスト用に月度を6月に変更しておく
-    target_day = datetime.date.today() - relativedelta(months=2)
+    target_day = datetime.date(target_day_str[0:4], target_day_str[4:6], 1) - relativedelta(months=1)
 
     # 結果を格納する変数
     data = []
 
-    # 取り敢えず直近の5か月分(当月から4か月先まで)のjsonデータを取得
-    for i in range(5):# 0～4までの数列
+    # 当月と前後1か月分のjsonデータを取得
+    for i in range(2):# 0～2までの数列
         next_day = target_day + relativedelta(months=i)
         next_month = next_day.month
         next_year = next_day.year
