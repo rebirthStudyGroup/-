@@ -14,9 +14,26 @@ urlpatterns = [
     # マイページ画面
     path(r'init_my_page_screen', views.init_my_page_screen, name='init_my_page_screen'),
     path(r'cancel_res_app', views.cancel_res_app, name='cancel_res_app'),
+    path(r'confirm_res_app', views.confirm_res_app, name='confirm_res_app'),
 
     # 予約入力画面
     path(r'push_res_app_button', views.push_res_app_button, name='push_res_app_button'),
+
+    # パスワード変更画面
+    path(r'init_password_change', views.init_password_change, name='init_password_change'),
+    path(r'change_password', views.change_password, name='change_password'),
+
+    # ユーザ一覧
+    path(r'init_admin_manage', views.init_admin_manage, name='init_admin_manage'),
+
+    # 管理者カレンダー
+    path(r'init_admin_calendar', views.init_admin_calendar, name='init_admin_calendar'),
+
+    # 利用規約
+    path(r'init_user_terms', views.init_user_terms, name='init_user_terms'),
+
+    # ユーザ管理
+    path(r'init_sidebay_info', views.init_sidebay_info, name='init_sidebay_info'),
 
     # JSON操作
     path(r'get_all_res_info', util.get_all_res_info, name='create_json_info'),
@@ -34,7 +51,7 @@ urlpatterns = [
 
     # ユーザ情報管理用URL
     path(r'test_database', views.test_database, name="test_database"),
-    path(r'delete_user', views.delete_user, name="delete_user")
+    path(r'test_delete_user', views.test_delete_user, name="test_delete_user")
 ]
 
 

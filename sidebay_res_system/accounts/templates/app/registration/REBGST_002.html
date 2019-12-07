@@ -1,50 +1,19 @@
 {% extends '../main_base.html' %}
 {% load static %}
 {% block content %}
-    <header>
-      <!-- <div class="container"> -->
-      <nav class="navbar navbar-expand-lg navbar-light">
-          <a class="navbar-brand" href="#">ロゴ</a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-          </button>
-          
-          <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-              <ul class="navbar-nav">
-                  <!-- <span class="sr-only">(current)</span>　現在の位置的なやつ -->
-                  <!-- activ -->
-                  <li>{{ request.session.login_username }}</li>
-                  <li class="nav-item ">
-                      <a href="{% url 'lottery' %}">マイページ</a>
-                  </li>
-                  <li class="nav-item">
-                      <a href="#">アクセス</a>
-                  </li>
-                  <li class="nav-item">
-                      <!-- disableの指定なし -->
-                      <a href="{% url 'logout' %}">ログアウト</a>
-                  </li>
-              </ul>
-          </div>
-      </nav>
-      <!-- </div> -->
-    </header>
 
     {% if request.session.login_user_id %}
     <div class="container">
         <div class="calender-type-select">
           <!-- 予約・抽選によってフォームを変える -->
-            <select name="" id="calender-type" class="form-control" onchange="titleTypeChange();">
-                <option value="0" selected>抽選エントリー</option>
+            <select name="" id="calender-type" class="form-control" onchange="titleTypeChange();" style="display:none">
+                <option value="0" selected>エントリー</option>
                 <option value="1">本予約</option>
                 <option value="2">二次申込</option>
               </select>
             </div>
             <div class="lottery-title">
-                <p class="form-title" id="title-type">抽選エントリーフォーム</p>
-                <p class="lottery-period">抽選対象期間</p>
-                <p>yyyymmdd ～ yyyymmdd</p>
+                <p class="form-title" id="title-type">予約カレンダー</p>
             </div>
             <div id="contents" class="container-fluid">  
                 <div class="col-xs-12">

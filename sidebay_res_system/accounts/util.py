@@ -58,14 +58,14 @@ def get_all_res_info(request):
     # 日付を取得
     target_day_str = request.GET.get("yyyymm")
 
-    # テスト用に月度を6月に変更しておく
-    target_day = datetime.date(target_day_str[0:4], target_day_str[4:6], 1) - relativedelta(months=1)
+    # 取得した文字列の日付を日付型に変換
+    target_day = datetime.date(int(target_day_str[0:4]), int(target_day_str[4:6]), 1) - relativedelta(months=1)
 
     # 結果を格納する変数
     data = []
 
     # 当月と前後1か月分のjsonデータを取得
-    for i in range(2):# 0～2までの数列
+    for i in range(3):# 0～2までの数列
         next_day = target_day + relativedelta(months=i)
         next_month = next_day.month
         next_year = next_day.year
@@ -97,6 +97,8 @@ class JsonFactory:
     RES_DATE = "start"
     USER = "user"
     TITLE_ROOMS = "title"
+    COLOR = "color"
+    TEXT_COLOR = "textColor"
 
     # ログインユーザの抽選、予約情報
     RES_ID = "res_id"
@@ -120,10 +122,13 @@ class JsonFactory:
 
         # 該当月度の最終日
         _, lastday = calendar.monthrange(year, month)
+
+        # 全ての日付に空の予約情報を設定
         for res_date_day in range(lastday): # 0,1,2,…,lastday - 1
             res_date = datetime.date(year,month,res_date_day + 1).strftime('%Y-%m-%d')
             reservation_dict[res_date] = {JsonFactory.RES_DATE: res_date, JsonFactory.TITLE_ROOMS: 0}
 
+        # 指定の年月から予約情報を取得
         res_list = ResDao.get_res_by_year_and_month(year, month)
 
         # 予約情報のQuerySetを取得からjson情報を作成する
@@ -136,13 +141,15 @@ class JsonFactory:
                 res_date = lodging_date.lodging_date.strftime('%Y-%m-%d')
 
                 json_data = reservation_dict.setdefault(res_date, {JsonFactory.RES_DATE:res_date, JsonFactory.TITLE_ROOMS: 0})
-                subscriber = JsonFactory.USER + str(len(json_data) - 1)
-                json_data[subscriber] = UserDao.get_user(res_set.user_id).username
+                checkin_user = JsonFactory.USER + str(len(json_data) - 1)
+                json_data[checkin_user] = UserDao.get_user(res_set.user_id).username
                 json_data[JsonFactory.TITLE_ROOMS] = json_data[JsonFactory.TITLE_ROOMS] + res_set.number_of_rooms
 
         for res_inf in reservation_dict.values():
-            if res_inf[JsonFactory.TITLE_ROOMS] == 4:
+            if res_inf[JsonFactory.TITLE_ROOMS] >= 4:
                 res_inf[JsonFactory.TITLE_ROOMS] = JsonFactory.IN_USE
+                res_inf[JsonFactory.COLOR] = "black"
+                res_inf[JsonFactory.TEXT_COLOR] = "white"
             else:
                 res_inf[JsonFactory.TITLE_ROOMS] = JsonFactory.VACANT
 

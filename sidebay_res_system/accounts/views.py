@@ -18,6 +18,14 @@ URL_REBGST001 = 'app/registration/REBGST_001.html'
 MAIN_SCREEN = "app/registration/main.html"
 URL_REBGST002 = "app/registration/REBGST_002.html"
 URL_REBGST003 = "app/registration/REBGST_003.html"
+URL_REBGST004 = "app/registration/REBGST_004.html"
+URL_REBGST005 = "app/registration/REBGST_005.html"
+URL_REBGST006 = "app/registration/REBGST_006.html"
+URL_REBGST007 = "app/registration/REBGST_007.html"
+URL_REBADM001 = "app/registration/REBADM_001.html"
+URL_REBADM002 = "app/registration/REBADM_002.html"
+URL_REBADM004 = "app/registration/REBADM_004.html"
+URL_REBADM005 = "app/registration/REBADM_005.html"
 TEST_SCREEN = "app/registration/test_database.html"
 TEST_RES_SCREEN="app/registration/test_reservation.html"
 
@@ -56,7 +64,6 @@ def push_login_button(request):
                 request.session[LOG_NAME] = user.username
                 request.session[LOG_MAIL] = user.mail_address
 
-                print("login successed!!")
                 return TemplateResponse(request, URL_REBGST002)
             # ユーザID、パスワードが登録情報と一致しない場合、ログイン画面を表示
             else:
@@ -112,17 +119,12 @@ def __check_login_user(request) -> TemplateResponse:
     if not LOG_USR in request.session:
         return TemplateResponse(request, URL_REBGST001, {})
 
-def puth_res_app_button(request):
-    """ログイン画面からログイン処理を実施。
-
-    """
-    pass
-
 def init_my_page_screen(request):
     """ログイン画面からログイン処理を実施。
 
     """
-    pass
+    __check_login_user(request)
+    return TemplateResponse(request, URL_REBGST003, {})
 
 def push_res_app_button(request):
     """予約を実施
@@ -139,7 +141,7 @@ def push_res_app_button(request):
     #注意：現時点では宿泊人数を使用しないため、常に0を入力
     number_of_guests = 0
 
-    # 抽選状況を取得
+    # 抽選期間か2次申込期間かを取得
     app_status_code = __get_app_status_code(check_in_date)
 
     # 予約月度が過去月度の場合、エラー情報を画面に返却
@@ -210,8 +212,9 @@ def confirm_res_app(request):
     reservation_id = request.POST.get("reservation_id", "")
 
     if reservation_id:
+        ResDao.create_res_by_lottery(reservation_id)
         LotDao.delete_by_reservation_id(reservation_id)
-        LodginDao.delete_by_reservation_id(reservation_id)
+        return HttpResponseRedirect(reverse('test_reservation', {"error": ""} ))
 
     return TemplateResponse(request, URL_REBGST003)
 
@@ -334,11 +337,10 @@ def delete_lottery_or_reservation(request, user_id):
 
     return HttpResponseRedirect(reverse('test_reservation', args=(user_id,)))
 
-def delete_user(request):
+def test_delete_user(request):
     """
     ユーザIDに紐づくユーザーを削除する
-    :param request:
-    :param user_id:
+    :param user_id: ユーザID
     :return:
     """
     user_id = int(request.POST.get("user_id", 0))
@@ -363,3 +365,87 @@ def get_back_to_main_from_test_register(request, user_id):
     users = UserDao.get_users()
 
     return TemplateResponse(request, URL_REBGST001, {})
+
+#TODO 未着手
+def init_password_change(request):
+    # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
+    __check_login_user(request)
+
+    return TemplateResponse(request, URL_REBGST005, {})
+
+#TODO 未着手
+def change_password(request):
+
+    # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
+    __check_login_user(request)
+
+    return TemplateResponse(request, URL_REBGST005, {})
+
+
+
+def init_admin_manage(request):
+
+    # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
+    __check_login_user(request)
+
+    # 全ユーザ情報を取得
+    users = UserDao.get_users()
+
+    return TemplateResponse(request, URL_REBADM001, {"uses": users})
+
+def register_new_user(request):
+    """（管理者専用）新規ユーザを登録する"""
+    if request.method == "POST":
+        user_id = request.POST.get("user_id", "")
+        username = request.POST.get("username", "")
+        mail_address = request.POST.get("mail_address", "")
+        password = request.POST.get("password", "")
+        UserDao.create_user(user_id, username, mail_address, password)
+
+    return TemplateResponse(request, URL_REBADM001, {})
+
+def update_user(request):
+    """（管理者専用）ユーザ情報を更新する"""
+    if request.method == "POST":
+        user_id = request.POST.get("user_id", "")
+        username = request.POST.get("username", "")
+        mail_address = request.POST.get("mail_address", "")
+        password = request.POST.get("password", "")
+        UserDao.update_user(user_id, username, mail_address, password)
+
+    return TemplateResponse(request, URL_REBADM001, {})
+
+def delete_user(request):
+    """（管理者専用）ユーザ情報を更新する"""
+    if request.method == "POST":
+        user_id = request.POST.get("user_id", "")
+        if user_id:
+            UserDao.delete_user_by_user_id(user_id)
+            ResDao.delete_by_user_id(user_id)
+            LotDao.delete_by_user_id(user_id)
+            LodginDao.delete_by_user_id(user_id)
+
+    return TemplateResponse(request, URL_REBADM001, {})
+
+#TODO 未着手
+def init_admin_calendar(request):
+
+    # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
+    __check_login_user(request)
+
+    return TemplateResponse(request, URL_REBADM002, {})
+
+
+def init_user_terms(request):
+
+    # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
+    __check_login_user(request)
+
+    return TemplateResponse(request, URL_REBGST006, {})
+
+def init_sidebay_info(request):
+
+    # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
+    __check_login_user(request)
+
+    return TemplateResponse(request, URL_REBGST007, {})

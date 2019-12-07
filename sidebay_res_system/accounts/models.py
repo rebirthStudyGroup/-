@@ -129,6 +129,17 @@ class UserDao:
         user.save()
 
     @staticmethod
+    def update_user(user_id:int, username:str, mail_address:str, password:str):
+        """引数のユーザIDに紐づくユーザ情報を引数の値に更新する"""
+        user = User.objects.filter(user_id=user_id)
+        if user:
+            user.username = username
+            user.mail_address = mail_address
+            #TODO パスワードの暗号化を行う必要あり
+            user.password = password
+            user.save()
+
+    @staticmethod
     def delete_user_by_user_id(user_id: int):
         """ユーザIDに紐づくユーザを削除する"""
         User.objects.filter(user_id=user_id).delete()

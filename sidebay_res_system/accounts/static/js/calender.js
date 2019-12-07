@@ -1,5 +1,11 @@
+var globalCalendar;
+
 function closeArea(){
   $('#detail-area').hide();
+}
+
+function getYYYYMM() {
+    return globalCalendar.currentDate.format("YYYYMM");
 }
 
 function titleTypeChange() {
@@ -187,7 +193,7 @@ $(document).ready(function() {
   var title = "hogeddd";
   var dt = new Date();
   // addMonth関数を使う
-  var prem = dt.addMonth( 3 );
+  var prem = dt.addMonth( 0 );
   var y = dt.getFullYear();
   var m = ("00" + (dt.getMonth() + 1)).slice(-2);
   var d = ("00" + dt.getDate()).slice(-2);
@@ -216,8 +222,12 @@ $(document).ready(function() {
     },
 
     events : {
-        url: 'create_json_info',
+        url: 'get_all_res_info',
         type: 'GET',
+        data: function(){return {yyyymm: getYYYYMM()};},
+        success: function(data) {
+            console.log(JSON.stringify(data));
+        },
         error: function() {
         $('#scrpit-warning').show;
         console.info("a");
@@ -238,10 +248,18 @@ $(document).ready(function() {
 
       event_data += event.title + '<br><br>\n';
       event_data += '<b>予約者一覧</b><br>\n';
-      event_data += event.subscriber1+ '<br>\n';
-      event_data += event.subscriber2+ '<br>\n';
-      event_data += event.subscriber3+ '<br>\n';
-      event_data += event.subscriber4+ '<br>\n';
+      if (event.user1) {
+        event_data += event.user1+ '<br>\n';
+      }
+      if (event.user2) {
+        event_data += event.user2+ '<br>\n';
+      }
+      if (event.user3) {
+        event_data += event.user3+ '<br>\n';
+      }
+      if (event.user4) {
+        event_data += event.user4+ '<br>\n';
+      }
 
 				//<div id="detail-area"></div>の中にevent_dataを入れて表示させる
 				$('#detail-area').html(event_data).show();

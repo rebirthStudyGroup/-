@@ -44,6 +44,53 @@
     <title>Sidebay予約システム</title>
   </head>
   <body>
+    <header>
+      <!-- <div class="container"> -->
+      <nav class="navbar navbar-expand-lg navbar-light">
+          <a class="navbar-brand" href="#">ロゴ</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+              <ul class="navbar-nav">
+                  <li>{{ request.session.login_username }}</li>
+                  <li class="nav-item ">
+                      <a href="init_my_page_screen">マイページ</a>
+                  </li>
+                  <li class="nav-item ">
+                      <a href="init_res_top_screen">予約カレンダー</a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="init_password_change">パスワード変更</a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="init_user_terms">利用規約</a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="init_sidebay_info">保養所情報</a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="{% url 'logout' %}">ログアウト</a>
+                  </li>
+              </ul>
+          </div>
+      </nav>
+      <nav class="navbar navbar-expand-lg navbar-light">
+          <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+              <ul class="navbar-nav">
+                  <li>管理者用メニュー</li>
+                  <li class="nav-item ">
+                      <a href="init_admin_calendar">管理者カレンダー</a>
+                  </li>
+                  <li class="nav-item ">
+                      <a href="init_admin_manage">ユーザ管理</a>
+                  </li>
+              </ul>
+          </div>
+      </nav>
+      <!-- </div> -->
+    </header>
     {% block content %} {% endblock %}
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
