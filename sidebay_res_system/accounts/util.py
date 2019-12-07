@@ -92,7 +92,7 @@ class JsonFactory:
     IN_USE = "空き状況：×"
     VACANT = "空き状況：〇"
     RES_DATE = "start"
-    USER = "subscriber"
+    USER = "user"
     TITLE_ROOMS = "title"
 
     # ログインユーザの抽選、予約情報
