@@ -207,8 +207,29 @@ def cancel_res_app(request):
 
     return TemplateResponse(request, URL_REBGST003, {"error":""})
 
-def confirm_res_app(request):
+def confirm_res(request):
     """予約の確定（本申込期間）"""
+    reservation_id = request.POST.get("reservation_id", "")
+
+    if reservation_id:
+        ResDao.change_request_status_to_confirm(reservation_id)
+        return HttpResponseRedirect(reverse('URL_REBGST003', {"error": ""} ))
+
+    return TemplateResponse(request, URL_REBGST003)
+
+def cancel_res(request):
+    """予約の確定（本申込期間）"""
+    reservation_id = request.POST.get("reservation_id", "")
+
+    if reservation_id:
+        ResDao.change_request_status_to_cansel(reservation_id)
+        return HttpResponseRedirect(reverse('URL_REBGST003', {"error": ""} ))
+
+    return TemplateResponse(request, URL_REBGST003)
+
+def confirm_res_app(request):
+    """テスト用予約の確定（本申込期間）"""
+    #TODO delete this method
     reservation_id = request.POST.get("reservation_id", "")
 
     if reservation_id:

@@ -1,6 +1,10 @@
 from django.urls import path
 from . import views, util
 
+
+
+
+
 urlpatterns = [
 
     # ログイン画面
@@ -14,7 +18,8 @@ urlpatterns = [
     # マイページ画面
     path(r'init_my_page_screen', views.init_my_page_screen, name='init_my_page_screen'),
     path(r'cancel_res_app', views.cancel_res_app, name='cancel_res_app'),
-    path(r'confirm_res_app', views.confirm_res_app, name='confirm_res_app'),
+    path(r'confirm_res', views.confirm_res, name='confirm_res'),
+    path(r'cancel_res', views.cancel_res, name='cancel_res'),
 
     # 予約入力画面
     path(r'push_res_app_button', views.push_res_app_button, name='push_res_app_button'),
@@ -51,8 +56,8 @@ urlpatterns = [
 
     # ユーザ情報管理用URL
     path(r'test_database', views.test_database, name="test_database"),
-    path(r'test_delete_user', views.test_delete_user, name="test_delete_user")
+    path(r'test_delete_user', views.test_delete_user, name="test_delete_user"),
+
+    # テストデータ作成用
+    path(r'confirm_res_app', views.confirm_res_app, name='confirm_res_app'),
 ]
-
-
-

@@ -278,6 +278,22 @@ class ResDao:
         res.save()
 
     @staticmethod
+    def change_request_status_to_confirm(reservation_id: int):
+        """予約情報の申込ステータスを確定させる"""
+        res = ResDao.get_by_reservation_id(reservation_id)
+
+        res.request_status = DETERMINED
+        res.save()
+
+    @staticmethod
+    def change_request_status_to_cansel(reservation_id: int):
+        """予約情報の申込ステータスを確定させる"""
+        res = ResDao.get_by_reservation_id(reservation_id)
+
+        res.request_status = CANCEL
+        res.save()
+
+    @staticmethod
     def check_overflowing_lodging_date(check_in_date: datetime.date, check_out_date: datetime.date) -> bool:
         """指定日の部屋数があふれていないかチェック"""
 
