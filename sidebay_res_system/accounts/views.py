@@ -400,6 +400,27 @@ def change_password(request):
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
     __check_login_user(request)
 
+    # 現パスワード、新パスワード、新パスワード確認版を取得する
+    old_password = request.POST.get("old_password", "")
+    new_password = request.POST.get("new_password", "")
+    new_password_conf = request.POST.get("new_password_conf", "")
+
+    # ログインユーザ情報を取得する
+    user = UserDao.get_user(request.session[LOG_USR])
+
+    # 現パスワードがユーザーの登録パスワードと一致するか確認する
+    if not UserDao.check_password_between_user_and_input(user, old_password):
+        return TemplateResponse(request, URL_REBGST005, {"error": "現在のパスワードが正しくありません。"})
+
+    # 新パスワードと新パスワード確認用が一致するか確認する
+    if new_password != new_password_conf:
+        return TemplateResponse(request, URL_REBGST005, {"error": "新しいパスワードと確認用パスワードが一致しません。"})
+
+    # 新パスワードを更新する
+    UserDao.update_user(user.user_id, user.username, user.mail_address, new_password)
+    return TemplateResponse(request, URL_REBGST005, {"error":""})
+
+
     return TemplateResponse(request, URL_REBGST005, {})
 
 
