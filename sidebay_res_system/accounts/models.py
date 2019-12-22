@@ -9,6 +9,7 @@ import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.sessions.models import Session
 from django.contrib.auth.base_user import BaseUserManager
+from django.db.models import Max
 
 import bcrypt
 
@@ -125,7 +126,6 @@ class UserDao:
         if user:
             user.username = username
             user.mail_address = mail_address
-            #TODO パスワードの暗号化を行う必要あり
             user.password = UserDao.hash_password(password)
             user.save()
 
@@ -223,7 +223,6 @@ class LotDao:
         Lottery_pool.objects.filter(user_id=user_id).delete()
 
 
-
 class Reservations(models.Model):
     """
     予約情報を提供するDTOクラス
@@ -245,8 +244,8 @@ class ResDao:
 
     @staticmethod
     def create_res_by_in_and_out(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date, number_of_rooms: int, number_of_guests: int, purpose: str):
-        # TODO: 文字のベタ打ちを直す　→ 直接予約情報作成は使わない削除予定
         res = Reservations()
+        res.reservation_id = LodginDao.get_min_reservation_id()
         res.user_id = user_id
         res.username = UserDao.get_user(user_id).username
         res.check_in_date = check_in_date
@@ -330,7 +329,7 @@ class ResDao:
         """二次申込として予約を確定"""
         # 予約テーブルをロック
         with connection.cursor() as cursor:
-            cursor.execute("LOCK TABLES %s READ", "accounts_reservations")
+            cursor.execute("LOCK TABLES accounts_reservations WRITE, accounts_lottery_pool WRITE, accounts_lodging WRITE, accounts_user READ")
             try:
                 if ResDao.check_overflowing_lodging_date(check_in_date, check_out_date):
                     ResDao.create_res_by_in_and_out(user_id, check_in_date, check_out_date, number_of_rooms, number_of_guests, purpose)
@@ -423,10 +422,9 @@ class LodginDao:
     def get_lodging_date_by_year_and_month_and_day(year: int, month: int, day: int):
         """予約年月日をもとに、宿泊日エンティティを取得"""
         return Lodging.objects \
-            .filter(check_in_date__year=year) \
-            .filter(check_in_date__month=month) \
-            .filter(check_in_date__day=day)
-
+            .filter(lodging_date__year=year) \
+            .filter(lodging_date__month=month) \
+            .filter(lodging_date__day=day)
 
     @staticmethod
     def delete_by_reservation_id(reservation_id: int):
@@ -437,3 +435,8 @@ class LodginDao:
     def delete_by_user_id(user_id: int):
         """Lotteryオブジェクトを削除"""
         Lodging.objects.filter(user_id=user_id).delete()
+
+    @staticmethod
+    def get_min_reservation_id():
+        """最小の予約ID + 1を取得する """
+        return Lodging.objects.all().aggregate(Max('reservation_id'))['reservation_id__max'] + 1

@@ -5,6 +5,7 @@ import datetime
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.sessions.models import Session
+from dateutil.relativedelta import relativedelta
 
 from .util import login_user
 
@@ -169,31 +170,29 @@ def __get_app_status_code(check_in_date:datetime.date) -> int:
     # 本申込締切日
     DEAD_LINE = 10
 
-    # 今月の月度
+    # 当月度
     today = datetime.date.today()
-    this_month = today.month
-    this_date = today.day
 
-    # 予約申込時の月度
-    res_month = check_in_date.month
+    # 抽選月度の初日と末日
+    lottery_start_line = today.replace(day=1) + relativedelta(months=2)
+    lottery_dead_line = today.replace(day=1) + relativedelta(months=3, days=-1)
+
+    # 二次申込用の日付（翌月度の初日と最終日）
+    next_month_first_day = lottery_start_line + relativedelta(months=-1)
+    second_app_dead_line = lottery_start_line + relativedelta(days=-1)
+
+    # 予約申込時の日付
     res_date = check_in_date.day
 
-    # 抽選か二次申込かの判断
-    # 本日より過去日付の場合
-    if today <= check_in_date:
-        pass
-    # 翌々月以降の場合
-    elif res_month > this_month + 1:
+    # 抽選期間の申込の場合
+    if lottery_start_line < check_in_date and lottery_dead_line > check_in_date:
         result = LOTTERY
-    # 当月の場合
-    elif this_month == res_month:
-        result = SECOND_APP
     # 翌月の場合
-    else:
-        if res_date >= DEAD_LINE:
-            result = SECOND_APP
-        else:
+    if today < check_in_date and second_app_dead_line > check_in_date:
+        if res_date < DEAD_LINE and check_in_date > next_month_first_day:
             pass
+        else:
+            result = SECOND_APP
 
     return result
 
@@ -387,6 +386,7 @@ def get_back_to_main_from_test_register(request, user_id):
 
     return TemplateResponse(request, URL_REBGST001, {})
 
+
 #TODO 未着手
 def init_password_change(request):
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
@@ -394,7 +394,7 @@ def init_password_change(request):
 
     return TemplateResponse(request, URL_REBGST005, {})
 
-#TODO 未着手
+
 def change_password(request):
 
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
@@ -421,10 +421,6 @@ def change_password(request):
     return TemplateResponse(request, URL_REBGST005, {"error":""})
 
 
-    return TemplateResponse(request, URL_REBGST005, {})
-
-
-
 def init_admin_manage(request):
 
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
@@ -434,6 +430,7 @@ def init_admin_manage(request):
     users = UserDao.get_users()
 
     return TemplateResponse(request, URL_REBADM001, {"uses": users})
+
 
 def register_new_user(request):
     """（管理者専用）新規ユーザを登録する"""
@@ -484,6 +481,7 @@ def init_user_terms(request):
     __check_login_user(request)
 
     return TemplateResponse(request, URL_REBGST006, {})
+
 
 def init_sidebay_info(request):
 
