@@ -58,7 +58,7 @@ def push_login_button(request):
         """
         # ユーザが存在する場合、セッション情報にユーザ情報を登録して、予約画面へ遷移
         if user is not None:
-            if user.check_pass(password):
+            if UserDao.check_password_between_user_and_input(user, password):
 
                 request.session[LOG_USR] = user.user_id
                 request.session[LOG_NAME] = user.username

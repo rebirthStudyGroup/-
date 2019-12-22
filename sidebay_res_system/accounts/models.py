@@ -7,10 +7,10 @@ from django.contrib.auth.models import PermissionsMixin
 from django.utils.translation import ugettext_lazy as _
 import datetime
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
 from django.contrib.auth.base_user import BaseUserManager
-from abc import ABCMeta, abstractmethod
+
+import bcrypt
 
 from django.db import connection
 
@@ -61,7 +61,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     user_id = models.IntegerField(_('ユーザID'), primary_key=True)
     username = models.CharField(_('ユーザ名'), max_length=40, default=None, blank=True)
     mail_address = models.EmailField(_('メールアドレス'), unique=True, default=None)
-    password = models.CharField(_('パスワード'), max_length=10, default=None) #パスワードの入力制限は設けるか
+    password = models.CharField(_('パスワード'), max_length=128, default=None) #パスワードの入力制限は設けるか
 
     is_staff = models.BooleanField(
         _('staff status'),
@@ -88,18 +88,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'mail_address'
     REQUIRED_FIELDS = []
 
-    def check_pass(self, password: str) -> bool:
-        """引数のパスワードとユーザーインスタンスのパスワードが一致するかチェックする
-
-        :param password: 画面入力されたパスワード
-        :return: 引数のパスワードとユーザーインスタンスが持つパスワードが一致するかどうかチェックする
-        """
-        user = UserDao.get_user(str(self.user_id))
-        if user is not None:
-            return password == user.password
-        return False
-
-
 
 class UserDao:
     """Userオブジェクトを操作するクラス"""
@@ -121,11 +109,13 @@ class UserDao:
 
     @staticmethod
     def create_user(user_id:int, username:str, mail_address:str, password:str):
+        """"""
+        #TODO メールアドレスの2重登録にならないような処理を入れる
         user = User()
         user.user_id = user_id
         user.username = username
         user.mail_address = mail_address
-        user.password = password
+        user.password = UserDao.hash_password(password)
         user.save()
 
     @staticmethod
@@ -136,7 +126,7 @@ class UserDao:
             user.username = username
             user.mail_address = mail_address
             #TODO パスワードの暗号化を行う必要あり
-            user.password = password
+            user.password = UserDao.hash_password(password)
             user.save()
 
     @staticmethod
@@ -150,8 +140,23 @@ class UserDao:
 
     @staticmethod
     def update_user_password(user: User, password:str):
-        user.password = password
+        user.password = UserDao.hash_password(password)
         user.save()
+
+    @staticmethod
+    def check_password_between_user_and_input(user: User, input_password: str):
+        """引数で受け取ったパスワードとユーザ情報のパスワードが一致するか確認する"""
+        return UserDao.check_password(user.password, input_password)
+
+    @staticmethod
+    def hash_password(password: str, rounds=12) -> str:
+        """パスワードをハッシュ化して取得する"""
+        return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+    @staticmethod
+    def check_password(hash_password: str, input_password: str) -> str:
+        """引数で受け取ったハッシュ化パスワードと文字列パスワードが一致するか確認する"""
+        return bcrypt.checkpw(input_password.encode(), hash_password.encode())
 
 class Lottery_pool(models.Model):
     """
