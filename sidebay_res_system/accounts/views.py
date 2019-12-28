@@ -185,6 +185,7 @@ def __get_app_status_code(check_in_date:datetime.date) -> int:
 
     # 当月度
     today = datetime.date.today()
+    app_dead_line = today.replace(day=DEAD_LINE)
 
     # 抽選月度の初日と末日
     lottery_start_line = today.replace(day=1) + relativedelta(months=2)
@@ -194,15 +195,12 @@ def __get_app_status_code(check_in_date:datetime.date) -> int:
     next_month_first_day = lottery_start_line + relativedelta(months=-1)
     second_app_dead_line = lottery_start_line + relativedelta(days=-1)
 
-    # 予約申込時の日付
-    res_date = check_in_date.day
-
     # 抽選期間の申込の場合
     if lottery_start_line < check_in_date and lottery_dead_line > check_in_date:
         result = LOTTERY
     # 翌月の場合
     if today < check_in_date and second_app_dead_line > check_in_date:
-        if res_date < DEAD_LINE and check_in_date > next_month_first_day:
+        if today < app_dead_line and check_in_date > next_month_first_day:
             pass
         else:
             result = SECOND_APP

@@ -330,7 +330,6 @@ class ResDao:
 
         # 宿泊日に部屋数が4部屋以上になってないかチェック
         for stay_number in range(stay_duration):
-            stay_number += 1
             lodging_date = check_in_date + datetime.timedelta(days=stay_number)
             rooms[lodging_date] = 0
 
@@ -341,7 +340,7 @@ class ResDao:
             rooms[lodging_date] = sum([lodging.number_of_rooms for lodging in lodgings])
 
             # 部屋数が5部屋以上となった場合 False を返却
-            if rooms[lodging_date] > 4:
+            if rooms[lodging_date] > 3:
                 return False
 
         # すべての宿泊日で部屋数が4部屋以内に収まれば True を返却
