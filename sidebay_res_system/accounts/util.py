@@ -92,8 +92,8 @@ class JsonFactory:
     """
 
     # カレンダー情報
-    IN_USE = "空き状況：×"
-    VACANT = "空き状況：〇"
+    IN_USE = "空室：×"
+    VACANT = "空室：{num}部屋"
     RES_DATE = "start"
     USER = "user"
     TITLE_ROOMS = "title"
@@ -142,16 +142,17 @@ class JsonFactory:
 
                 json_data = reservation_dict.setdefault(res_date, {JsonFactory.RES_DATE:res_date, JsonFactory.TITLE_ROOMS: 0})
                 checkin_user = JsonFactory.USER + str(len(json_data) - 1)
-                json_data[checkin_user] = UserDao.get_user(res_set.user_id).username
+                json_data[checkin_user] = "{username}: {rooms}部屋".format(username=UserDao.get_user(res_set.user_id).username, rooms=res_set.number_of_rooms)
                 json_data[JsonFactory.TITLE_ROOMS] = json_data[JsonFactory.TITLE_ROOMS] + res_set.number_of_rooms
 
         for res_inf in reservation_dict.values():
-            if res_inf[JsonFactory.TITLE_ROOMS] >= 4:
+            room_count = res_inf[JsonFactory.TITLE_ROOMS]
+            if room_count > 3:
                 res_inf[JsonFactory.TITLE_ROOMS] = JsonFactory.IN_USE
                 res_inf[JsonFactory.COLOR] = "black"
                 res_inf[JsonFactory.TEXT_COLOR] = "white"
             else:
-                res_inf[JsonFactory.TITLE_ROOMS] = JsonFactory.VACANT
+                res_inf[JsonFactory.TITLE_ROOMS] = JsonFactory.VACANT.format(num=(4 - room_count))
 
         # テスト用にreturnを実施
         return list(reservation_dict.values())
