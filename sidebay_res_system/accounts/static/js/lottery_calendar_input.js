@@ -5,7 +5,7 @@ $( function () {
     var nowDate = date.getDate();
     console.log( nowDate );
     var nowMonth = date.getMonth() + 1; //今月
-    var futMonth = date.getMonth() + 4; //予約可能月　3か月後
+    var futMonth = date.getMonth() + 1; //予約可能月　3か月後
 
     var nowYear = date.getFullYear();
     // 今の月の日数
@@ -19,12 +19,14 @@ $( function () {
     var getFutMonthDay = parseInt( getMonthDays( nowYear, futMonth ) );
     console.log( getFutMonthDay );
     $( "#datepicker_start" ).datepicker( {
-        minDate: ( ( getMonthDay + 1 ) - nowDate ) + "+2M", maxDate: ( getFutMonthDay - nowDate ) + "D" + "+3M",
+        minDate: new Date(),
+        //maxDate: ( getFutMonthDay - nowDate ) + "D" + "+3M",
         dateFormat: 'yy-mm-dd',
         showAnim: 'slideDown',
     } );
-    $( "#datepicker_start2" ).datepicker( {
-        minDate: ( ( getMonthDay + 1 ) - nowDate ) + "+2M", maxDate: ( getFutMonthDay - nowDate ) + "D" + "+3M",
+    $( "#datepicker_end" ).datepicker( {
+        minDate: new Date(),
+        //maxDate: ( getFutMonthDay - nowDate ) + "D" + "+3M",
         dateFormat: 'yy-mm-dd',
         showAnim: 'slideDown',
     } );

@@ -55,8 +55,7 @@ position: relative;
   font-size: 30px;
 }
 
-.lottery-card,
-form {
+.lottery-card {
   width: 450px;
   margin: 0 auto;
   margin-bottom: 30px;

@@ -171,7 +171,9 @@ function titleTypeChange() {
     free_text_value.innerHTML = free_textArea_value;
 
   }
-$(document).ready(function() {
+
+
+calendarInit = function() {
 
   // 数か月先をとるプロトタイプ　ネットに落ちてた。
   // http://www.is-p.cc/web-skill/javascript-%E4%B8%80%E3%83%B6%E6%9C%88%E5%BE%8C%EF%BC%88n%E3%83%B5%E6%9C%88%E5%BE%8C%EF%BC%89%E3%82%92%E5%8F%96%E5%BE%97%E3%81%99%E3%82%8B%E9%96%A2%E6%95%B0/1159
@@ -204,7 +206,18 @@ $(document).ready(function() {
     console.log(nowDate);
   }
 
-  
+   calendarEvent = {
+        url: 'get_all_res_info',
+        type: 'GET',
+        data: function(){return {yyyymm: getYYYYMM()};},
+        success: function(data) {
+            console.log("===================================================================================================================");
+            console.log(JSON.stringify(data));
+        },
+        error: function() {
+        $('#scrpit-warning').show;
+        }
+    };
 
   // カレンダーの設定
   $("#calendar").fullCalendar({
@@ -216,34 +229,18 @@ $(document).ready(function() {
     selectHelper: true,
     editable: true,
     eventLimit: true,
+    //eventDurationEditable: false,
+    selectable: false,
+    editable: false,
     success: function(calEvent) {
       $("#calendar").fullCalendar("removeEvents");
       $("#calendar").fullCalendar("addEventSource", calEvent);
     },
 
-    events : {
-        url: 'get_all_res_info',
-        type: 'GET',
-        data: function(){return {yyyymm: getYYYYMM()};},
-        success: function(data) {
-            console.log(JSON.stringify(data));
-        },
-        error: function() {
-        $('#scrpit-warning').show;
-        console.info("a");
-        }
-    },
-    // events: [
-    //   {
-    //     id: 1,
-    //     title: '空き状況：○',
-    //     description1: 'ミヤタ', //予定内容
-    //     start: '2019-09-01'
-    //   }
-    // ],
+    events : calendarEvent,
 
     eventClick: function(event) {
-      
+
       var event_data = '<a href="javascript:void(0);" class="close" onclick="return closeArea();">閉じる</a><br>';
 
       event_data += event.title + '<br><br>\n';
@@ -268,23 +265,22 @@ $(document).ready(function() {
       // 編集ボタンと削除ボタン、ついでに閉じるボタンのHTML要素を追加
 
       var firstLotteryDay = date.format();
-      // var checkOutDay = date.format();
-      // var checkOutDayInt = parseInt(checkOutDay);
       var datepicker_start = document.getElementById("datepicker_start");
       datepicker_start.value = firstLotteryDay;
+      var datepicker_end = document.getElementById("datepicker_end");
+      datepicker_end.value = $.datepicker.formatDate("yy-mm-dd", new Date(date._d.setDate(date._d.getDate() + 1)));
 
-      var datepicker_start2 = document.getElementById("datepicker_start2");
-      datepicker_start2.value = firstLotteryDay;
 
-      // var datepicker_end = document.getElementById("datepicker_end");
-      // datepicker_end.value = checkOutDayInt;
-      var clalenderType =  document.getElementById("calender-type").value;
-      if (clalenderType == 0) {
-        // モーダルだし分け
+      var purposeE = document.getElementsByName("purpose");
+      purposeE[0].selectedIndex = 0;
+
+      var numberOfRoomsE = document.getElementsByName("number_of_rooms");
+      numberOfRoomsE[0].value = 1;
+
         $("#calendarModal").modal(); // モーダル着火
-      } else {
-        $("#calendarModal2").modal(); // モーダル着火
-      }  
+
     }
   });
-});
+};
+
+$(document).ready(calendarInit);

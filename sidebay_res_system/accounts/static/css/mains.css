@@ -294,10 +294,10 @@ section .card {
 
 footer {
   width: 100%;
-  background: #919191;
   height: auto;
-  padding: 10px;
+  padding: 0px;
   text-align: center;
+
 }
 
 footer .copyright-text {
@@ -416,3 +416,4 @@ content-box群
     color: #cccccb;
   }
 }
+
