@@ -135,8 +135,8 @@ def init_my_page_screen(request):
     user_id = request.session[LOG_USR]
     login_user_res_info = []
     if user_id:
-        login_user_res_info.append(ResDao.get_loginuserres_dto_by_user_id(user_id))
-        login_user_res_info.append(LotDao.get_loginuserres_dto_by_user_id(user_id))
+        login_user_res_info.extend(ResDao.get_loginuserres_dto_by_user_id(user_id))
+        login_user_res_info.extend(LotDao.get_loginuserres_dto_by_user_id(user_id))
 
     return TemplateResponse(request, URL_REBGST003, {"login_user_res_info": login_user_res_info})
 
