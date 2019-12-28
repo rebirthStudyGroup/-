@@ -10,6 +10,7 @@ from dateutil.relativedelta import relativedelta
 from .util import login_user
 
 LOG_USR = "login_user_id"
+ADMIN_USR = "adming_id"
 LOG_NAME = "login_username"
 LOG_MAIL = "login_mail_address"
 KARA = ""
@@ -120,12 +121,24 @@ def __check_login_user(request) -> TemplateResponse:
     if not LOG_USR in request.session:
         return TemplateResponse(request, URL_REBGST001, {})
 
+def __check_admini_user(request):
+    """セッション情報にユーザーIDが存在するかを確認"""
+    if not ADMIN_USR in request.session:
+        return TemplateResponse(request, URL_REBGST001, {})
+
 def init_my_page_screen(request):
     """ログイン画面からログイン処理を実施。
 
     """
     __check_login_user(request)
-    return TemplateResponse(request, URL_REBGST003, {})
+
+    user_id = request.POST.get("user_id", "")
+    login_user_res_info = []
+    if user_id:
+        login_user_res_info.append(ResDao.get_loginuserres_dto_by_user_id(user_id))
+        login_user_res_info.append(LotDao.get_loginuserres_dto_by_user_id(user_id))
+
+    return TemplateResponse(request, URL_REBGST003, {"login_user_res_info": login_user_res_info})
 
 def push_res_app_button(request):
     """予約を実施
@@ -418,7 +431,7 @@ def change_password(request):
 
     # 新パスワードを更新する
     UserDao.update_user(user.user_id, user.username, user.mail_address, new_password)
-    return TemplateResponse(request, URL_REBGST005, {"error":""})
+    return TemplateResponse(request, URL_REBGST005, {"error":"", "success": "パスワード変更に表示しました"})
 
 
 def init_admin_manage(request):

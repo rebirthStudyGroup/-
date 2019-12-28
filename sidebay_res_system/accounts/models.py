@@ -10,6 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.sessions.models import Session
 from django.contrib.auth.base_user import BaseUserManager
 from django.db.models import Max
+from accounts.dto import LoginUserResInfo
 
 import bcrypt
 
@@ -122,7 +123,7 @@ class UserDao:
     @staticmethod
     def update_user(user_id:int, username:str, mail_address:str, password:str):
         """引数のユーザIDに紐づくユーザ情報を引数の値に更新する"""
-        user = User.objects.filter(user_id=user_id)
+        user = User.objects.get(user_id=user_id)
         if user:
             user.username = username
             user.mail_address = mail_address
@@ -175,6 +176,8 @@ class Lottery_pool(models.Model):
 class LotDao:
     """Lottery_poolオブジェクトを操作するクラス"""
 
+    STATUS = 0
+
     @staticmethod
     def create_res_by_in_and_out(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date, number_of_rooms: int, number_of_guests: int, purpose: str):
         # TODO: 文字のベタ打ちを直す
@@ -221,6 +224,26 @@ class LotDao:
     def delete_by_user_id(user_id: int):
         """Lotteryオブジェクトを削除"""
         Lottery_pool.objects.filter(user_id=user_id).delete()
+
+    @staticmethod
+    def get_loginuserres_dto_by_user_id(user_id: str):
+        """ログインユーザ情報に紐づくログインユーザDTOを取得"""
+        lotterys = Lottery_pool.objects.filter(user_id=user_id)
+        result = []
+        if lotterys:
+            for lot in lotterys:
+                dto = LoginUserResInfo()
+                dto.res_id = lot.user_id
+                dto.app_status = LotDao.STATUS
+                dto.check_in_date = lot.check_in_date
+                dto.check_out_date = lot.check_out_date
+                dto.number_of_rooms = lot.number_of_rooms
+                dto.expire_date = ""
+                dto.priority = lot.priority
+                result.append(dto)
+        return result
+
+
 
 
 class Reservations(models.Model):
@@ -389,6 +412,24 @@ class ResDao:
     def get_by_reservation_id(reservation_id: int):
         """引数の予約IDに紐づく予約情報を取得する"""
         return Reservations.objects.filter(reservation_id=reservation_id)
+
+    @staticmethod
+    def get_loginuserres_dto_by_user_id(user_id: str):
+        """ログインユーザ情報に紐づくログインユーザDTOを取得"""
+        reservations = Reservations.objects.filter(user_id=user_id)
+        result = []
+        if reservations:
+            for res in reservations:
+                dto = LoginUserResInfo()
+                dto.res_id = res.user_id
+                dto.app_status = (int)(res.request_status) + 1
+                dto.check_in_date = res.check_in_date
+                dto.check_out_date = res.check_out_date
+                dto.number_of_rooms = res.number_of_rooms
+                dto.expire_date = res.expire_date
+                dto.priority = ""
+                result.append(dto)
+        return result
 
 
 
