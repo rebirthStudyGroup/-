@@ -132,7 +132,7 @@ def init_my_page_screen(request):
     """
     __check_login_user(request)
 
-    user_id = request.POST.get("user_id", "")
+    user_id = request.session[LOG_USR]
     login_user_res_info = []
     if user_id:
         login_user_res_info.append(ResDao.get_loginuserres_dto_by_user_id(user_id))
@@ -232,7 +232,7 @@ def cancel_res(request):
     reservation_id = request.POST.get("reservation_id", "")
 
     if reservation_id:
-        ResDao.change_request_status_to_cansel(reservation_id)
+        ResDao.change_request_status_to_cancel(reservation_id)
         return HttpResponseRedirect(reverse('URL_REBGST003', {"error": ""} ))
 
     return TemplateResponse(request, URL_REBGST003)

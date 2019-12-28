@@ -313,7 +313,7 @@ class ResDao:
         res.save()
 
     @staticmethod
-    def change_request_status_to_cansel(reservation_id: int):
+    def change_request_status_to_cancel(reservation_id: int):
         """予約情報の申込ステータスを確定させる"""
         res = ResDao.get_by_reservation_id(reservation_id)
 
