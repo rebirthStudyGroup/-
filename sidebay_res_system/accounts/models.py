@@ -321,8 +321,10 @@ class ResDao:
         res.save()
 
     @staticmethod
-    def check_overflowing_lodging_date(check_in_date: datetime.date, check_out_date: datetime.date) -> bool:
-        """指定日の部屋数があふれていないかチェック"""
+    def check_overflowing_lodging_date(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date) -> bool:
+        """以下の2項目をチェック
+        　・既に対象のユーザが予約してないか
+        　・指定日の部屋数があふれていないか"""
 
         rooms = {}
 
@@ -339,6 +341,10 @@ class ResDao:
             # 指定の日付の部屋数を全て合算した数値を取得
             rooms[lodging_date] = sum([lodging.number_of_rooms for lodging in lodgings])
 
+            # ログインユーザが指定の日付で予約済の場合 False を返却
+            if user_id in [ lod.user_id for lod in lodgings]:
+                return False
+
             # 部屋数が5部屋以上となった場合 False を返却
             if rooms[lodging_date] > 3:
                 return False
@@ -353,7 +359,7 @@ class ResDao:
         with connection.cursor() as cursor:
             cursor.execute("LOCK TABLES accounts_reservations WRITE, accounts_lottery_pool WRITE, accounts_lodging WRITE, accounts_user READ")
             try:
-                if ResDao.check_overflowing_lodging_date(check_in_date, check_out_date):
+                if ResDao.check_overflowing_lodging_date(user_id, check_in_date, check_out_date):
                     ResDao.create_res_by_in_and_out(user_id, check_in_date, check_out_date, number_of_rooms, number_of_guests, purpose)
                     return True
             finally:
