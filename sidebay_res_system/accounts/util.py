@@ -1,7 +1,7 @@
 from django.contrib.auth import login
 from django.core.mail import BadHeaderError, send_mail
 from accounts.models import UserDao, ResDao, LodginDao, LotDao
-from django.contrib.sessions.models import Session
+from accounts.dao import CalendarMaster
 
 # 固定値
 LOG_USR = "login_user_id"
@@ -53,12 +53,12 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http.response import JsonResponse
 
 @ensure_csrf_cookie
+    # 取得した文字列の日付を日付型に変換
 def get_all_res_info(request):
 
     # 日付を取得
     target_day_str = request.GET.get("yyyymm")
 
-    # 取得した文字列の日付を日付型に変換
     target_day = datetime.date(int(target_day_str[0:4]), int(target_day_str[4:6]), 1) - relativedelta(months=1)
 
     # 結果を格納する変数
@@ -94,6 +94,7 @@ class JsonFactory:
     # カレンダー情報
     IN_USE = "空室：×"
     VACANT = "空室：{num}部屋"
+    BANNED = "施設利用不可"
     RES_DATE = "start"
     USER = "user"
     TITLE_ROOMS = "title"
@@ -153,6 +154,13 @@ class JsonFactory:
                 res_inf[JsonFactory.TEXT_COLOR] = "white"
             else:
                 res_inf[JsonFactory.TITLE_ROOMS] = JsonFactory.VACANT.format(num=(4 - room_count))
+
+
+        # 施設利用不可日の登録
+        for ng in CalendarMaster.get_ngdata_in_month(year, month):
+            ng_date = ng.strftime('%Y-%m-%d')
+            reservation_dict[ng_date] = {JsonFactory.RES_DATE: ng_date, JsonFactory.TITLE_ROOMS: JsonFactory.BANNED, JsonFactory.COLOR: "black", JsonFactory.TEXT_COLOR: "while"}
+
 
         # テスト用にreturnを実施
         return list(reservation_dict.values())

@@ -5,6 +5,9 @@ from . import views, util
 
 
 
+
+
+
 urlpatterns = [
 
     # ログイン画面
@@ -57,6 +60,11 @@ urlpatterns = [
     # ユーザ情報管理用URL
     path(r'test_database', views.test_database, name="test_database"),
     path(r'test_delete_user', views.test_delete_user, name="test_delete_user"),
+
+    path(r'register_new_user', views.register_new_user, name="register_new_user"),
+    path(r'update_user', views.update_user, name="update_user"),
+    path(r'delete_user', views.delete_user, name="delete_user"),
+
 
     # テストデータ作成用
     path(r'confirm_res_app', views.confirm_res_app, name='confirm_res_app'),

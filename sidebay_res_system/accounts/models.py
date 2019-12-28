@@ -11,6 +11,7 @@ from django.contrib.sessions.models import Session
 from django.contrib.auth.base_user import BaseUserManager
 from django.db.models import Max
 from accounts.dto import LoginUserResInfo
+from accounts.dao import CalendarMaster
 
 import bcrypt
 
@@ -107,7 +108,7 @@ class UserDao:
 
     @staticmethod
     def get_users():
-        return User.objects.order_by('username')
+        return User.objects.order_by('user_id')
 
     @staticmethod
     def create_user(user_id:int, username:str, mail_address:str, password:str):
@@ -128,6 +129,15 @@ class UserDao:
             user.username = username
             user.mail_address = mail_address
             user.password = UserDao.hash_password(password)
+            user.save()
+
+    @staticmethod
+    def update_user_without_password(user_id:int, username:str, mail_address:str):
+        """引数のユーザIDに紐づくユーザ情報のうちパスワード以外を引数の値に更新する"""
+        user = User.objects.get(user_id=user_id)
+        if user:
+            user.username = username
+            user.mail_address = mail_address
             user.save()
 
     @staticmethod
@@ -180,8 +190,11 @@ class LotDao:
 
     @staticmethod
     def create_res_by_in_and_out(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date, number_of_rooms: int, number_of_guests: int, purpose: str):
-        # TODO: 文字のベタ打ちを直す
+        """Lottery_poolオブジェクトを新規作成する"""
+        if CalendarMaster.is_in_ngdate(check_in_date, check_out_date):
+            return
         lot = Lottery_pool()
+        lot.reservation_id = LodginDao.get_min_reservation_id()
         lot.user_id = user_id
         lot.username = UserDao.get_user(user_id).username
         lot.check_in_date = check_in_date
@@ -233,7 +246,7 @@ class LotDao:
         if lotterys:
             for lot in lotterys:
                 dto = LoginUserResInfo()
-                dto.res_id = lot.user_id
+                dto.res_id = lot.reservation_id
                 dto.app_status = LotDao.STATUS
                 dto.check_in_date = lot.check_in_date
                 dto.check_out_date = lot.check_out_date
@@ -267,6 +280,7 @@ class ResDao:
 
     @staticmethod
     def create_res_by_in_and_out(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date, number_of_rooms: int, number_of_guests: int, purpose: str):
+        """Reservationsオブジェクトを新規作成する"""
         res = Reservations()
         res.reservation_id = LodginDao.get_min_reservation_id()
         res.user_id = user_id
@@ -325,6 +339,9 @@ class ResDao:
         """以下の2項目をチェック
         　・既に対象のユーザが予約してないか
         　・指定日の部屋数があふれていないか"""
+        # 施設利用不可日かどうかを確認する
+        if CalendarMaster.is_in_ngdate(check_in_date, check_out_date):
+            return False
 
         rooms = {}
 
@@ -357,7 +374,7 @@ class ResDao:
         """二次申込として予約を確定"""
         # 予約テーブルをロック
         with connection.cursor() as cursor:
-            cursor.execute("LOCK TABLES accounts_reservations WRITE, accounts_lottery_pool WRITE, accounts_lodging WRITE, accounts_user READ")
+            cursor.execute("LOCK TABLES accounts_reservations WRITE, accounts_lottery_pool WRITE, accounts_lodging WRITE, accounts_user READ, calendar_master READ")
             try:
                 if ResDao.check_overflowing_lodging_date(user_id, check_in_date, check_out_date):
                     ResDao.create_res_by_in_and_out(user_id, check_in_date, check_out_date, number_of_rooms, number_of_guests, purpose)
@@ -366,7 +383,6 @@ class ResDao:
                 cursor.execute("UNLOCK TABLES")
 
         return False
-
 
     @staticmethod
     def delete_by_reservation_id(reservation_id: int):
@@ -406,17 +422,9 @@ class ResDao:
         return Reservations.objects.filter(check_in_date__range=month)
 
     @staticmethod
-    def confirm_res(reservation_id):
-        """引数の予約IDのステータスを本申込に変更する"""
-        reservations = ResDao.get_by_reservation_id(reservation_id)
-        for reservation in reservations:
-            reservation.request_status = DETERMINED
-            reservation.save()
-
-    @staticmethod
     def get_by_reservation_id(reservation_id: int):
         """引数の予約IDに紐づく予約情報を取得する"""
-        return Reservations.objects.filter(reservation_id=reservation_id)
+        return Reservations.objects.get(reservation_id=reservation_id)
 
     @staticmethod
     def get_loginuserres_dto_by_user_id(user_id: str):
@@ -426,7 +434,7 @@ class ResDao:
         if reservations:
             for res in reservations:
                 dto = LoginUserResInfo()
-                dto.res_id = res.user_id
+                dto.res_id = res.reservation_id
                 dto.app_status = (int)(res.request_status) + 1
                 dto.check_in_date = res.check_in_date
                 dto.check_out_date = res.check_out_date
@@ -435,6 +443,30 @@ class ResDao:
                 dto.priority = ""
                 result.append(dto)
         return result
+
+    @staticmethod
+    def register_prohibit_date(admin_id: int, start_date: datetime.date, end_date: datetime.date):
+        """（管理者専用）予約不可日を登録する"""
+        res = Reservations()
+        res.reservation_id = LodginDao.get_min_reservation_id()
+        res.user_id = admin_id
+        res.username = UserDao.get_user(admin_id).username
+        res.check_in_date = start_date
+        res.check_out_date = end_date
+        res.number_of_rooms = 4
+        res.number_of_guests = 0
+        res.purpose = "-1"
+        res.request_status = 1
+        res.expire_date = datetime.date.today() + datetime.timedelta(days=31)
+        res.save()
+
+        # 使用不可日数を導出
+        visit_duration = (end_date - start_date).days
+
+        # 使用不可日に登録されていた抽選／予約情報を全て削除する
+
+        # 宿泊データを作成
+        LodginDao.create_lodging_data(res.reservation_id, res.user_id, start_date , visit_duration, res.number_of_rooms)
 
 
 
@@ -485,4 +517,7 @@ class LodginDao:
     @staticmethod
     def get_min_reservation_id():
         """最小の予約ID + 1を取得する """
-        return Lodging.objects.all().aggregate(Max('reservation_id'))['reservation_id__max'] + 1
+        current = Lodging.objects.all().aggregate(Max('reservation_id'))['reservation_id__max']
+        if current:
+            return current + 1
+        return 1
