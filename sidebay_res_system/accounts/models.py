@@ -182,6 +182,7 @@ class Lottery_pool(models.Model):
     number_of_guests = models.SmallIntegerField(_('宿泊人数'))
     priority = models.SmallIntegerField(_('希望') ,default=1)
     purpose = models.CharField(_('利用形態'), max_length=10, default=None)
+    is_defeated = models.BooleanField(_('落選フラグ'), default=False)
 
 class LotDao:
     """Lottery_poolオブジェクトを操作するクラス"""
@@ -247,7 +248,7 @@ class LotDao:
             for lot in lotterys:
                 dto = LoginUserResInfo()
                 dto.res_id = lot.reservation_id
-                dto.app_status = LotDao.STATUS
+                dto.app_status = 4 if lot.is_defeated else 0
                 dto.check_in_date = lot.check_in_date
                 dto.check_out_date = lot.check_out_date
                 dto.number_of_rooms = lot.number_of_rooms
