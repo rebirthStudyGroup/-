@@ -407,7 +407,7 @@ class ResDao:
     @staticmethod
     def get_res_by_year_and_month(year:int, month:int):
         """引数の年月に紐づく予約情報を取得する"""
-        return Reservations.objects.filter(check_in_date__year=year).filter(check_in_date__month=month)
+        return Reservations.objects.filter(check_in_date__year=year).filter(check_in_date__month=month).filter(request_status__lte=1)
 
     @staticmethod
     def get_res():
