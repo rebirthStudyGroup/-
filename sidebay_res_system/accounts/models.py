@@ -205,6 +205,7 @@ class LotDao:
         lot.purpose = purpose
         lot.request_status = 1
         lot.expire_date = datetime.date.today() + datetime.timedelta(days=31)
+        lot.is_defeated = False
         lot.save()
 
         # 滞在日数を導出
@@ -256,8 +257,6 @@ class LotDao:
                 dto.priority = lot.priority
                 result.append(dto)
         return result
-
-
 
 
 class Reservations(models.Model):
