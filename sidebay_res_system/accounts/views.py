@@ -527,16 +527,18 @@ def init_admin_calendar(request):
 
 def prohibit_res(request):
     """（管理者専用）施設利用不可日を登録"""
-
+    error = ""
     # セッション情報に管理者IDが存在するか確認。存在しなければログイン画面へ遷移
     __check_admini_user(request)
 
-    if request.method == "POST":
-        ng_date = request.POST.get("ng_date", "")
-        reason = request.POST.get("reason", "")
-        CalendarMaster.set_ngdate(datetime.date.fromisoformat(ng_date), reason)
+    from django.http import QueryDict
+    dic = QueryDict(request.body, encoding='utf-8')
+    ng_date = dic.get('ng_date')
+    reason = dic.get('reason')
+    CalendarMaster.set_ngdate(datetime.date.fromisoformat(ng_date), reason)
 
-    return TemplateResponse(request, URL_REBADM002, {})
+    from django.http.response import JsonResponse
+    return JsonResponse(error, safe=False)
 
 
 
