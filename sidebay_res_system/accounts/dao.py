@@ -21,7 +21,7 @@ class CalendarMaster:
         """引数で受け取った月度の施設利用不可日を取得する"""
         today = date.today().strftime("%Y-%m-%d")
         with connection.cursor() as cursor:
-            cursor.execute("select {ng_column} from {table} where (DATE_FORMAT({ng_column}, '%Y%m') = '{Y}{m}')".format(ng_column=NG_COL, table=TABLE, today=today, Y=str(year), m=str(month)))
+            cursor.execute("select {ng_column} from {table} where (DATE_FORMAT({ng_column}, '%Y%m') = '{Y}{m}')".format(ng_column=NG_COL, table=TABLE, Y=str(year), m=str(month).zfill(2)))
             result = cursor.fetchall()
             return [x[0] for x in result]
 
