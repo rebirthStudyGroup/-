@@ -272,10 +272,14 @@ calendarInit = function() {
 
 
       var purposeE = document.getElementsByName("purpose");
-      purposeE[0].selectedIndex = 0;
+      if (purposeE[0]) {
+        purposeE[0].selectedIndex = 0;
+      }
 
       var numberOfRoomsE = document.getElementsByName("number_of_rooms");
-      numberOfRoomsE[0].value = 1;
+      if (numberOfRoomsE[0]) {
+        numberOfRoomsE[0].value = 1;
+      }
 
         $("#calendarModal").modal(); // モーダル着火
 

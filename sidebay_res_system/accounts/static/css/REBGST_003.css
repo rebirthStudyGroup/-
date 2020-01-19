@@ -21,6 +21,7 @@
 .REBGST_003 table.table tbody tr td,
 .REBGST_003 table.table thead tr th {
   text-align: center;
+  vertical-align: middle;
 }
 
 .action-cell {

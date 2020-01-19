@@ -29,6 +29,7 @@
         <a class="reset-pass" href="#" onclick="clickPasswordClear()">パスワードを忘れた方はこちら</a>
   </form>
   <form action="reset_password" method="post">
+    {% csrf_token %}
     <span style="display:none" id="pass_reset">
     <div class="form-group">
       <input type="number" id="user_id2" class="form-control" placeholder="社員番号" onchange="user_id.value=user_id2.value">

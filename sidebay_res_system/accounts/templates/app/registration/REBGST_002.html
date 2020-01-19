@@ -5,12 +5,7 @@
     {% if request.session.login_user_id %}
     <div class="container">
         <div class="calender-type-select">
-          <!-- 予約・抽選によってフォームを変える -->
-            <select name="" id="calender-type" class="form-control" onchange="titleTypeChange();" style="display:none">
-                <option value="0" selected>エントリー</option>
-                <option value="1">本予約</option>
-                <option value="2">二次申込</option>
-              </select>
+
             </div>
             <div class="lottery-title">
                 <p class="form-title" id="title-type">予約カレンダー</p>
@@ -40,66 +35,37 @@
                     </button>
                   </div>
                   <div class="modal-body">
-                    <form class="" action="" method="post">
+                    <form class="" action="push_res_app_button" method="post" onsubmit="return mySubmit('push_res_app_button')">
                       {% csrf_token %}
                       <div class="card lottery-card">
                         <div class="card-body lottery-card-body">
                           <p>
                             <label class="lottery-label-num">
-                              人数<span class="required">*</span><input class="form-control" type="number" name="" value="" min="1" max="10" required>
-                            </label>
-                          </p>
-                          <p>
-                            <label class="lottery-label-room">
-                              希望のお部屋<span class="required">*</span>
-                              <select name="" id="" class="form-control">
-                                <option value="0" selected>選択してください</option>
-                                <option value="6">6帖</option>
-                                <option value="8">8帖</option>
-                              </select>
+                              部屋数<span class="required">*</span><input class="form-control" type="number" name="number_of_rooms" value="" min="1" max="4" required>
                             </label>
                           </p>
                           <p>
                             <label class="lottery-label-room">
                               利用形態<span class="required">*</span>
-                              <select name="" id="" class="form-control">
-                                <option value="0" selected>選択してください</option>
-                                <option value="1">家族</option>
-                                <option value="2">友人</option>
-                                <option value="3">その他</option>
+                              <select name="purpose" id="" class="form-control">
+                                <option value="0" selected>家族</option>
+                                <option value="1">友人</option>
+                                <option value="2">その他</option>
                                 <p>
                           </p>
                               </select>
                             </label>
                           </p>
                           <p id="dateForm1">
-                            <label class="lottery-label-day">予約日（第1希望）<span class="required">*</span>
-                              <input class="lottery-days form-control" type="text" id="datepicker_start" size="20" name="first"
+                            <label class="lottery-label-day">予約日<span class="required">*</span>
+                              <input class="lottery-days form-control" type="text" id="datepicker_start" size="20" name="check_in_date" maxlength="10"
                                 placeholder="チェックイン" required>
-                              <input class="lottery-days form-control" type="text" id="datepicker_end" size="20" name="first"
+                              <input class="lottery-days form-control" type="text" id="datepicker_end" size="20" name="check_out_date" maxlength="10"
                                 placeholder="チェックアウト" required>
                             </label>
-                            <!-- <span id="addBtn1" onclick="addLotteryForm2();">+</span> -->
                           </p>
-                          <!-- <p id="dateForm2">
-                            <label class="lottery-label-day">予約日（第2希望）
-                              <input class="lottery-days form-control" type="text" id="datepicker1" size="20" name="second">
-                            </label>
-                            <span id="addBtn2" onclick="addLotteryForm3();">+</span>
-                            <span id="addBtn2" onclick="removeLotteryForm2();">-</span>
-                          </p>
-                          <p id="dateForm3">
-                            <label class="lottery-label-day">予約日（第3希望）
-                              <input class="lottery-days form-control" type="text" id="datepicker2" size="20" name="thired">
-                            </label>
-                            <span id="addBtn2" onclick="removeLotteryForm3();">-</span>
-                          </p> -->
                         <p>
-                            <div class="form-group">
-                                <label class="lottery-label-free-text" for="#">ご希望
-                              <textarea id="textarea1" class="form-control"></textarea>
-                            </div>
-                          </label>
+                        </label>
                         </p>
                         </div>
                         <div class="lottery-send">
@@ -112,68 +78,7 @@
               </div>
             </div>
       </div>
-      <!-- 予約・二次予約フォーム -->
-      <div id="calendarModal2" class="modal fade">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="label1">予約・二次予約フォーム</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <form class="" action="" method="post">
-                  {% csrf_token %}
-                  <div class="card lottery-card">
-                    <div class="card-body lottery-card-body">
-                      <p>
-                        <label class="lottery-label-num">
-                          人数<span class="required">*</span><input class="form-control" type="number" name="" value="" min="1" max="10" required>
-                        </label>
-                      </p>
-                      <p>
-                        <label class="lottery-label-room">
-                          希望のお部屋<span class="required">*</span>
-                          <select name="" id="" class="form-control">
-                            <option value="0" selected>選択してください</option>
-                            <option value="6">6帖</option>
-                            <option value="8">8帖</option>
-                          </select>
-                        </label>
-                      </p>
-                      <p>
-                        <label class="lottery-label-room">
-                          利用形態<span class="required">*</span>
-                          <select name="" id="" class="form-control">
-                            <option value="0" selected>選択してください</option>
-                            <option value="1">家族</option>
-                            <option value="2">友人</option>
-                            <option value="3">その他</option>
-                            <p>
-                      </p>
-                          </select>
-                        </label>
-                      </p>
-                      <p id="dateForm1">
-                        <label class="lottery-label-day">予約日（第1希望）<span class="required">*</span>
-                          <input class="lottery-days form-control" type="text" id="datepicker_start2" size="20" name="first"
-                            placeholder="チェックイン" required>
-                          <input class="lottery-days form-control" type="text" id="datepicker_end" size="20" name="first"
-                            placeholder="チェックアウト" required>
-                        </label>
-                        <!-- <span id="addBtn1" onclick="addLotteryForm2();">+</span> -->
-                      </p>
-                    </div>
-                    <div class="lottery-send">
-                      <button class="btn lottery-send-btn" type="submit" name="button">予約確定</button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
+
         <div id="detail-area"></div>
      <footer>
          <div class="footer-image">
@@ -184,6 +89,61 @@
        </div>
 
      </footer>
+
+
+    {% csrf_token %}
+    <script language="JavaScript">
+        function mySubmit(eventName) {
+
+            var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+            var check_in_date = document.getElementsByName("check_in_date")[0].value;
+            var check_out_date = document.getElementsByName("check_out_date")[0].value;
+            var number_of_rooms = document.getElementsByName("number_of_rooms")[0].value;
+            var purpose = document.getElementsByName("purpose")[0].value;
+            data = {
+                        "check_in_date" : check_in_date,
+                        "check_out_date" : check_out_date,
+                        "number_of_rooms" : number_of_rooms,
+                        "purpose" : purpose
+                    };
+
+            $.ajax(
+                {
+                    type: "POST",
+                    url: eventName,
+                    contentType: "application/json",
+                    //data: JSON.stringify(data),
+                    data: {
+                        "check_in_date" : check_in_date,
+                        "check_out_date" : check_out_date,
+                        "number_of_rooms" : number_of_rooms,
+                        "purpose" : purpose
+                    },
+                    // 送信前にヘッダにcsrf_tokenを付与。
+                    beforeSend: function(xhr, settings) {
+                         //if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                             xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                         //}
+                    },
+                    success: function(error){
+                        $('#calendarModal').modal('hide');
+                        if (error) {
+                            alert("エラーが発生しました。\n" + error);
+                        } else {
+                            alert("登録しました。");
+                        }
+                        $('#calendar').fullCalendar( 'refetchEvents' );
+
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown){
+                        alert("サーバー側でエラーが発生しました。");
+                    }
+                }
+            );
+            return false;
+        }
+    </script>
+
     {% endif %}
 
 

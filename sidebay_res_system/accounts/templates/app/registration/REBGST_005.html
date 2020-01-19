@@ -6,7 +6,7 @@
                 <p class="form-title" id="title-type">パスワード変更</p>
             </div>
     <!-- メールアドレスとパスワードでログインをしてsideｰ米の抽選ページにいく -->
-  <form action="change_password" method="post" onsubmit="return passwordConf();">
+  <form class="lottery-card" action="change_password" method="post" onsubmit="return passwordConf();">
     {% csrf_token %}
     <div class="form-group" style="text-align:right">
 
@@ -21,9 +21,20 @@
       <button type="submit" class="btn">パスワード変更</button>
 
     </div>
-    <!-- ログインボタンを押すと入力情報に間違いがなければメインページへ遷移する。 -->
+
+
   </form>
   </div>
+
+     <footer>
+         <div class="footer-image">
+         <img class="rebirth-logo" src="{% static 'img/rebirth.png' %}" alt="社名ロゴマーク" width="50px" height="80px">
+         </div>
+        <div class="footer-text">
+          <p class="copyright-text">c 2019 Sidebay_res_system_team</p>
+       </div>
+
+     </footer>
   <script language="JavaScript">
     function passwordConf() {
       var eOldPass = document.getElementById("old_password");
@@ -40,4 +51,5 @@
       return true;
     }
   </script>
+
 {% endblock content %}

@@ -100,7 +100,7 @@
                 }
             }
             function changeText(elem) {
-                elem.style.backgroundColor = "#FFFF99";
+                elem.style.backgroundColor = "pink";
             }
 
     </script>
