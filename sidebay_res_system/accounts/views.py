@@ -356,7 +356,7 @@ def register_reservation(request, user_id):
     return HttpResponseRedirect(reverse('test_reservation', args=(user_id,)))
 
 def turn_lottery_into_reservation(request, user_id):
-    """
+    """TODO 削除予定
     抽選エンティティを予約エンティティへ変換する
     :param request:
     :param user_id:

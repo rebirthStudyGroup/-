@@ -39,6 +39,7 @@ urlpatterns = [
 
     # 利用規約
     path(r'init_user_terms', views.init_user_terms, name='init_user_terms'),
+    path(r'prohibit_res', views.prohibit_res, name='prohibit_res'),
 
     # ユーザ管理
     path(r'init_sidebay_info', views.init_sidebay_info, name='init_sidebay_info'),

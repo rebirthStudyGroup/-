@@ -281,6 +281,8 @@ class ResDao:
     @staticmethod
     def create_res_by_in_and_out(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date, number_of_rooms: int, number_of_guests: int, purpose: str):
         """Reservationsオブジェクトを新規作成する"""
+        if CalendarMaster.is_in_ngdate(check_in_date, check_out_date):
+            return
         res = Reservations()
         res.reservation_id = LodginDao.get_min_reservation_id()
         res.user_id = user_id
@@ -444,31 +446,6 @@ class ResDao:
                 result.append(dto)
         return result
 
-    @staticmethod
-    def register_prohibit_date(admin_id: int, start_date: datetime.date, end_date: datetime.date):
-        """（管理者専用）予約不可日を登録する"""
-        res = Reservations()
-        res.reservation_id = LodginDao.get_min_reservation_id()
-        res.user_id = admin_id
-        res.username = UserDao.get_user(admin_id).username
-        res.check_in_date = start_date
-        res.check_out_date = end_date
-        res.number_of_rooms = 4
-        res.number_of_guests = 0
-        res.purpose = "-1"
-        res.request_status = 1
-        res.expire_date = datetime.date.today() + datetime.timedelta(days=31)
-        res.save()
-
-        # 使用不可日数を導出
-        visit_duration = (end_date - start_date).days
-
-        # 使用不可日に登録されていた抽選／予約情報を全て削除する
-
-        # 宿泊データを作成
-        LodginDao.create_lodging_data(res.reservation_id, res.user_id, start_date , visit_duration, res.number_of_rooms)
-
-
 
 class Lodging(models.Model):
     """宿泊日数情報を提供するDTOクラス(予約クラスの子クラス)"""
@@ -476,6 +453,7 @@ class Lodging(models.Model):
     user_id = models.IntegerField(_("ユーザID"))
     lodging_date = models.DateField(_('宿泊日'))
     number_of_rooms = models.SmallIntegerField(_('部屋数'), default=1)
+
 
 class LodginDao:
 
