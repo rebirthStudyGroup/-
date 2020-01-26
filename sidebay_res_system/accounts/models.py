@@ -107,6 +107,11 @@ class UserDao:
             print("対象のオブジェクトがDBに存在しません")
 
     @staticmethod
+    def check_user_by_mail_address(user: User, mail_address: str) -> bool:
+        """引数のユーザが保持するメールアドレスと引数のメールアドレスが一致するかチェック"""
+        return user.mail_address == mail_address
+
+    @staticmethod
     def get_users():
         return User.objects.order_by('user_id')
 
@@ -144,10 +149,6 @@ class UserDao:
     def delete_user_by_user_id(user_id: int):
         """ユーザIDに紐づくユーザを削除する"""
         User.objects.filter(user_id=user_id).delete()
-
-    @staticmethod
-    def test_session():
-        return Session.objects.all()
 
     @staticmethod
     def update_user_password(user: User, password:str):
@@ -499,3 +500,7 @@ class LodginDao:
         if current:
             return current + 1
         return 1
+
+class Numbering(models.Model):
+    """シーケンシャルオブジェクト"""
+    
