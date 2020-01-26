@@ -123,28 +123,27 @@ def init_res_top_screen(request):
     """予約日入力画面の初期処理"""
 
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
-    __check_login_user(request)
+    if not __is_login_user(request):
+        return TemplateResponse(request, URL_REBGST001, {"error": "セッションが切断されました"})
 
     return TemplateResponse(request, URL_REBGST002, {})
 
 
-def __check_login_user(request) -> TemplateResponse:
+def __is_login_user(request) -> bool:
     """セッション情報にログインユーザ情報が存在するかを確認"""
-
-    if not LOG_USR in request.session:
-        return TemplateResponse(request, URL_REBGST001, {})
+    return LOG_USR in request.session
 
 
-def __check_admini_user(request):
+def __is_admini_user(request) -> bool:
     """セッション情報にユーザーIDが存在するかを確認"""
-    if not ADMIN_USR in request.session:
-        return TemplateResponse(request, URL_REBGST001, {})
+    return ADMIN_USR in request.session
 
 
 def init_my_page_screen(request):
     """ログイン画面からログイン処理を実施。"""
 
-    __check_login_user(request)
+    if not __is_login_user(request):
+        return TemplateResponse(request, URL_REBGST001, {"error": "セッションが切断されました"})
 
     login_user_res_info = []
 
@@ -426,7 +425,8 @@ def get_back_to_main_from_test_register(request, user_id):
 #TODO 未着手
 def init_password_change(request):
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
-    __check_login_user(request)
+    if not __is_login_user(request):
+        return TemplateResponse(request, URL_REBGST001, {"error": "セッションが切断されました"})
 
     return TemplateResponse(request, URL_REBGST005, {})
 
@@ -435,7 +435,8 @@ def change_password(request):
     """パスワードを変更する"""
 
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
-    __check_login_user(request)
+    if not __is_login_user(request):
+        return TemplateResponse(request, URL_REBGST001, {"error": "セッションが切断されました"})
 
     # 現パスワード、新パスワード、新パスワード確認版を取得する
     old_password = request.POST.get("old_password", "")
@@ -462,7 +463,8 @@ def init_admin_manage(request):
     """（管理者専用）管理者画面の初期表示"""
 
     # セッション情報に管理者IDが存在するか確認。存在しなければログイン画面へ遷移
-    __check_admini_user(request)
+    if not __is_admini_user(request):
+        return TemplateResponse(request, URL_REBGST001, {"error": "管理者権限がありません"})
 
     # 全ユーザ情報を取得
     users = UserDao.get_users()
@@ -474,7 +476,8 @@ def register_new_user(request):
     """（管理者専用）新規ユーザを登録する"""
 
     # セッション情報に管理者IDが存在するか確認。存在しなければログイン画面へ遷移
-    __check_admini_user(request)
+    if not __is_admini_user(request):
+        return TemplateResponse(request, URL_REBGST001, {"error": "管理者権限がありません"})
 
     if request.method == "POST":
         user_id = request.POST.get("user_id", "")
@@ -493,7 +496,8 @@ def update_user(request):
     """（管理者専用）ユーザ情報を更新する"""
 
     # セッション情報に管理者IDが存在するか確認。存在しなければログイン画面へ遷移
-    __check_admini_user(request)
+    if not __is_admini_user(request):
+        return TemplateResponse(request, URL_REBGST001, {"error": "管理者権限がありません"})
 
     if request.method == "POST":
         user_id = request.POST.get("user_id", "")
@@ -510,7 +514,8 @@ def delete_user(request):
     """（管理者専用）ユーザ情報を更新する"""
 
     # セッション情報に管理者IDが存在するか確認。存在しなければログイン画面へ遷移
-    __check_admini_user(request)
+    if not __is_admini_user(request):
+        return TemplateResponse(request, URL_REBGST001, {"error": "管理者権限がありません"})
 
     if request.method == "POST":
         user_id = request.POST.get("user_id", "")
@@ -530,7 +535,8 @@ def init_admin_calendar(request):
     """（管理者専用）管理者専用カレンダーの初期表示"""
 
     # セッション情報に管理者IDが存在するか確認。存在しなければログイン画面へ遷移
-    __check_admini_user(request)
+    if not __is_admini_user(request):
+        return TemplateResponse(request, URL_REBGST001, {"error": "管理者権限がありません"})
 
     return TemplateResponse(request, URL_REBADM002, {})
 
@@ -539,7 +545,8 @@ def prohibit_res(request):
     """（管理者専用）施設利用不可日を登録"""
     error = ""
     # セッション情報に管理者IDが存在するか確認。存在しなければログイン画面へ遷移
-    __check_admini_user(request)
+    if not __is_admini_user(request):
+        return TemplateResponse(request, URL_REBGST001, {"error": "管理者権限がありません"})
 
     from django.http import QueryDict
     dic = QueryDict(request.body, encoding='utf-8')
@@ -554,14 +561,12 @@ def prohibit_res(request):
 def init_user_terms(request):
 
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
-    __check_login_user(request)
-
-    return TemplateResponse(request, URL_REBGST006, {})
+    if not __is_login_user(request):
+        return TemplateResponse(request, URL_REBGST006, {})
 
 
 def init_sidebay_info(request):
 
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
-    __check_login_user(request)
-
-    return TemplateResponse(request, URL_REBGST007, {})
+    if not __is_login_user(request):
+        return TemplateResponse(request, URL_REBGST007, {})
