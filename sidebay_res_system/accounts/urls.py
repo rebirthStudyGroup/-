@@ -13,7 +13,7 @@ urlpatterns = [
     # ログイン画面
     path('', views.init_login_screen, name='top'),
     path(r'push_login_button', views.push_login_button, name='main'),
-    path(r'reset_password', views.init_password, name='reset_password'),
+    path(r'reset_password', views.reset_password, name='reset_password'),
 
     # 予約トップ画面
     path(r'init_res_top_screen', views.init_res_top_screen, name='init_res_top_screen'),

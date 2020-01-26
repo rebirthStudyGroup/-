@@ -102,20 +102,21 @@ def reset_password(request):
     target_user = UserDao.get_user(user_id)
 
     # ユーザ情報のメールアドレスと画面から取得したメールアドレスが一致するかチェック
-    if mail_address != target_user.mail_address:
-        return TemplateResponse(request, URL_REBGST001,
+    if UserDao.check_user_by_mail_address(target_user, mail_address):
+        #TODO 汎用テーブルからパスワード初期値を取得
+        password = "1234"
+
+        #DBのユーザパスワードを初期値に更新
+        UserDao.update_user_password(target_user, password)
+
+        #TODO 登録のメールアドレスにパスワード初期化の旨を送信
+        print("仮：メールアドレスにパスワード初期値を送信")
+
+        return TemplateResponse(request, URL_REBGST001, {"error": ""})
+
+    return TemplateResponse(request, URL_REBGST001,
                                 {"error": "メールアドレスが登録されたメールアドレスと一致しません"})
 
-    #TODO 汎用テーブルからパスワード初期値を取得
-    password = "1234"
-
-    #DBのユーザパスワードを初期値に更新
-    UserDao.update_user_password(target_user, password)
-
-    #TODO 登録のメールアドレスにパスワード初期化の旨を送信
-    print("仮：メールアドレスにパスワード初期値を送信")
-
-    return TemplateResponse(request, URL_REBGST001, {})
 
 
 def init_res_top_screen(request):
@@ -423,6 +424,7 @@ def init_password_change(request):
 
 
 def change_password(request):
+    """パスワードを変更する"""
 
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
     __check_login_user(request)
@@ -539,7 +541,6 @@ def prohibit_res(request):
 
     from django.http.response import JsonResponse
     return JsonResponse(error, safe=False)
-
 
 
 def init_user_terms(request):
