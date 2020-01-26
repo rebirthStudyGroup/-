@@ -4,11 +4,13 @@
       <div class="lottery-title">
           <p class="form-title" id="title-type">ユーザ管理</p>
       </div>
-      <div class="container" style="padding-left:130px;">
+      <!--<div class="form-group" style="text-align:right">-->
+      <div class="container" >
             <div class="col-xs-12">
                   <p>ユーザーID、氏名、メールアドレスを記載の上、新規登録ボタンを押下してください。</p>
             </div>
-            <table class="table-bordered">
+            <div style="overflow-x: auto;">
+            <table class="table-bordered" width="100%">
                   <thead>
                         <tr>
                               <th style="padding-left:10px;font-weight:bold;text-align:center" bgcolor="#f8dbc6">社員番号</th>
@@ -22,16 +24,16 @@
                         {% csrf_token %}
                               <div class="form-group">
                                     <tr>
-                                          <td>
-                                                <p><input type="number" style="width:120px;" name="user_id" id="user_id" class="form-control" placeholder="社員番号" required></p>
+                                          <td align="center">
+                                                <p><input type="number" style="" name="user_id" id="user_id" class="form-control" placeholder="社員番号" required></p>
                                           </td>
-                                          <td>
-                                                <p><input type="text" style="width:250px;" name="user_name" id="user_name" class="form-control" placeholder="氏名" required></p>
+                                          <td align="center">
+                                                <p><input type="text" name="user_name" id="user_name" class="form-control" placeholder="氏名" required></p>
                                           </td>
-                                          <td>
-                                                <p><input type="email" style="width:350px;" name="mail_address" id="mail_address" class="form-control" placeholder="メールアドレス" required></p>
+                                          <td align="center">
+                                                <p><input type="email" name="mail_address" id="mail_address" class="form-control" placeholder="メールアドレス" required></p>
                                           </td>
-                                          <td>
+                                          <td align="center">
                                                 <div style="text-align:center;width:120px;">
                                                       <input type="submit" class="btn" value="新規登録">
                                                 </div>
@@ -41,11 +43,13 @@
                         </form>
                   </tbody>
             </table>
+            </div>
             <br>
             <div class="col-xs-12">
                   <p>ユーザー情報更新の場合はテキストを変更し、更新ボタンを押下してください。<br>ユーザー情報削除の場合はそのまま削除ボタンを押下してください。</p>
             </div>
-            <table class="table-bordered">
+            <div style="overflow-x: auto;">
+            <table class="table-bordered" width="100%">
                   <thead>
                         <tr>
                               <th style="padding-left:10px;font-weight:bold;text-align:center" bgcolor="#f8dbc6">社員番号</th>
@@ -60,14 +64,14 @@
                               <form action="" method="post">
                               {% csrf_token %}
                                     <div class="form-group">
-                                          <td style="width:120px;padding-left:10px;padding-bottom:15px">{{i.user_id}}</td>
-                                          <td>
-                                                <p><input type="text" value="{{i.username}}" style="width:250px;" name="user_name" id="user_name" class="form-control" onchange="changeText(this);"></p>
+                                          <td style="padding-left:10px;padding-bottom:15px">{{i.user_id}}</td>
+                                          <td align="center">
+                                                <p><input type="text" value="{{i.username}}" name="user_name" id="user_name" class="form-control" onchange="changeText(this);"></p>
                                           </td>
-                                          <td>
-                                                <p><input type="text" value="{{i.mail_address}}" style="width:350px;" name="mail_address" id="mail_address" class="form-control"  onchange="changeText(this);"></p>
+                                          <td align="center">
+                                                <p><input type="text" value="{{i.mail_address}}" name="mail_address" id="mail_address" class="form-control"  onchange="changeText(this);"></p>
                                           </td>
-                                          <td>
+                                          <td align="center">
                                                 <input type="button" class="btn" formaction="update_user" onclick="return confirmUpdate(this, '{{i.user_id}}')" value="更新">
                                                 <input type="button" class="btn" formaction="delete_user" onclick="return confirmUpdate(this, '{{i.user_id}}')" value="削除">
                                                 <input type="hidden"  name="user_id" id="user_id" value="{{i.user_id}}">
@@ -79,6 +83,7 @@
                   </tbody>
             </table>
             <br>
+            </div>
       </div>
       <footer>
             <div class="footer-image">
