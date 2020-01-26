@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.contrib.sessions.models import Session
 from dateutil.relativedelta import relativedelta
 from accounts.dao import CalendarMaster
+from operator import attrgetter
 
 from .util import login_user
 
@@ -118,7 +119,6 @@ def reset_password(request):
                                 {"error": "メールアドレスが登録されたメールアドレスと一致しません"})
 
 
-
 def init_res_top_screen(request):
     """予約日入力画面の初期処理"""
 
@@ -142,16 +142,24 @@ def __check_admini_user(request):
 
 
 def init_my_page_screen(request):
-    """ログイン画面からログイン処理を実施。
+    """ログイン画面からログイン処理を実施。"""
 
-    """
     __check_login_user(request)
 
-    user_id = request.session[LOG_USR]
     login_user_res_info = []
+
+    user_id = request.session[LOG_USR]
     if user_id:
+        # ユーザの全ての予約・抽選を取得
         login_user_res_info.extend(ResDao.get_loginuserres_dto_by_user_id(user_id))
         login_user_res_info.extend(LotDao.get_loginuserres_dto_by_user_id(user_id))
+
+        # 本日以降チェックアウト予定の予約・抽選のみ出力
+        today = datetime.date.today()
+        login_user_res_info = filter(lambda i: i.check_out_date >= today, login_user_res_info)
+
+        # チェックイン日で降順に出力
+        login_user_res_info = sorted(login_user_res_info, key=attrgetter('check_in_date'), reverse=True)
 
     return TemplateResponse(request, URL_REBGST003, {"login_user_res_info": login_user_res_info})
 

@@ -151,6 +151,10 @@ class UserDao:
         User.objects.filter(user_id=user_id).delete()
 
     @staticmethod
+    def test_session():
+        return Session.objects.all()
+
+    @staticmethod
     def update_user_password(user: User, password:str):
         user.password = UserDao.hash_password(password)
         user.save()
@@ -502,5 +506,16 @@ class LodginDao:
         return 1
 
 class Numbering(models.Model):
-    """シーケンシャルオブジェクト"""
-    
+    """採番テーブル"""
+
+    reservation_id = models.IntegerField(_("予約ID"))
+
+class NumDao():
+
+    @staticmethod
+    def get_num():
+        """採番地を更新(+1)して取得する"""
+        num = Numbering.objects.select_for_update().first()
+
+
+
