@@ -562,11 +562,15 @@ def init_user_terms(request):
 
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
     if not __is_login_user(request):
-        return TemplateResponse(request, URL_REBGST006, {})
+        return TemplateResponse(request, URL_REBGST001, {"error": "セッションが切断されました"})
+
+    return TemplateResponse(request, URL_REBGST006, {})
 
 
 def init_sidebay_info(request):
 
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
     if not __is_login_user(request):
-        return TemplateResponse(request, URL_REBGST007, {})
+        return TemplateResponse(request, URL_REBGST001, {"error": "セッションが切断されました"})
+
+    return TemplateResponse(request, URL_REBGST007, {})
