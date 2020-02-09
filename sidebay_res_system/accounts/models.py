@@ -2,6 +2,7 @@
 
 
 from django.db import models
+from django.db import transaction
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.utils.translation import ugettext_lazy as _
@@ -342,7 +343,7 @@ class ResDao:
         res.save()
 
     @staticmethod
-    def check_overflowing_lodging_date(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date) -> bool:
+    def check_overflowing_lodging_date(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date, number_of_rooms: int) -> bool:
         """以下の2項目をチェック
         　・既に対象のユーザが予約してないか
         　・指定日の部屋数があふれていないか"""
@@ -357,16 +358,16 @@ class ResDao:
         # 宿泊日に部屋数が4部屋以上になってないかチェック
         for stay_number in range(stay_duration):
             lodging_date = check_in_date + datetime.timedelta(days=stay_number)
-            rooms[lodging_date] = 0
+            rooms[lodging_date] = number_of_rooms
 
             # 指定の日付に紐づく宿泊エンティティを取得
             lodgings = LodginDao.get_lodging_date_by_year_and_month_and_day(lodging_date.year, lodging_date.month, lodging_date.day)
 
             # 指定の日付の部屋数を全て合算した数値を取得
-            rooms[lodging_date] = sum([lodging.number_of_rooms for lodging in lodgings])
+            rooms[lodging_date] += sum([lodging.number_of_rooms for lodging in lodgings])
 
             # ログインユーザが指定の日付で予約済の場合 False を返却
-            if user_id in [ lod.user_id for lod in lodgings]:
+            if user_id in [lod.user_id for lod in lodgings]:
                 return False
 
             # 部屋数が5部屋以上となった場合 False を返却
@@ -383,7 +384,7 @@ class ResDao:
         with connection.cursor() as cursor:
             cursor.execute("LOCK TABLES accounts_reservations WRITE, accounts_lottery_pool WRITE, accounts_lodging WRITE, accounts_user READ, calendar_master READ")
             try:
-                if ResDao.check_overflowing_lodging_date(user_id, check_in_date, check_out_date):
+                if ResDao.check_overflowing_lodging_date(user_id, check_in_date, check_out_date, number_of_rooms):
                     ResDao.create_res_by_in_and_out(user_id, check_in_date, check_out_date, number_of_rooms, number_of_guests, purpose)
                     return True
             finally:
@@ -510,12 +511,14 @@ class Numbering(models.Model):
 
     reservation_id = models.IntegerField(_("予約ID"))
 
-class NumDao():
+class NumDao:
 
     @staticmethod
+    @transaction.atomic
     def get_num():
         """採番地を更新(+1)して取得する"""
         num = Numbering.objects.select_for_update().first()
-
-
+        num.reservation_id += 1
+        num.save()
+        return num.reservation_id
 

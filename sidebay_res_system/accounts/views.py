@@ -172,7 +172,7 @@ def push_res_app_button(request):
     dic = QueryDict(request.body, encoding='utf-8')
     check_in_date = datetime.date.fromisoformat(dic.get('check_in_date'))
     check_out_date = datetime.date.fromisoformat(dic.get('check_out_date'))
-    number_of_rooms = dic.get('number_of_rooms')
+    number_of_rooms = int(dic.get('number_of_rooms'))
     purpose = dic.get('purpose')
 
     error = ""
