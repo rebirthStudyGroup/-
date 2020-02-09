@@ -52,6 +52,7 @@ from dateutil.relativedelta import relativedelta
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http.response import JsonResponse
 
+
 @ensure_csrf_cookie
     # 取得した文字列の日付を日付型に変換
 def get_all_res_info(request):
@@ -85,6 +86,7 @@ def get_login_user_res_info(request):
     data = JsonFactory.create_login_user_res_info_by_user_id(user_id)
 
     return JsonResponse(data, safe=False)
+
 
 class JsonFactory:
     """
@@ -126,25 +128,22 @@ class JsonFactory:
 
         # 全ての日付に空の予約情報を設定
         for res_date_day in range(lastday): # 0,1,2,…,lastday - 1
-            res_date = datetime.date(year,month,res_date_day + 1).strftime('%Y-%m-%d')
+            res_date = datetime.date(year, month, res_date_day + 1).strftime('%Y-%m-%d')
             reservation_dict[res_date] = {JsonFactory.RES_DATE: res_date, JsonFactory.TITLE_ROOMS: 0}
 
         # 指定の年月から予約情報を取得
-        res_list = ResDao.get_res_by_year_and_month(year, month)
+        lod_list = LodginDao.get_lodging_date_by_year_and_month(year, month)
 
         # 予約情報のQuerySetを取得からjson情報を作成する
-        for res_set in res_list:
+        for lodging in lod_list:
 
-            # 予約情報が持つ連泊数ごとにjsonレコードを作成・追記
-            for lodging_date in LodginDao.get_lodging_by_reservation_id(res_set.reservation_id):
+            # チェックイン日と連泊日数をもとに、キーとなる日付を取得
+            res_date = lodging.lodging_date.strftime('%Y-%m-%d')
 
-                # チェックイン日と連泊日数をもとに、キーとなる日付を取得
-                res_date = lodging_date.lodging_date.strftime('%Y-%m-%d')
-
-                json_data = reservation_dict.setdefault(res_date, {JsonFactory.RES_DATE:res_date, JsonFactory.TITLE_ROOMS: 0})
-                checkin_user = JsonFactory.USER + str(len(json_data) - 1)
-                json_data[checkin_user] = "{username}: {rooms}部屋".format(username=UserDao.get_user(res_set.user_id).username, rooms=res_set.number_of_rooms)
-                json_data[JsonFactory.TITLE_ROOMS] = json_data[JsonFactory.TITLE_ROOMS] + res_set.number_of_rooms
+            json_data = reservation_dict.setdefault(res_date, {JsonFactory.RES_DATE:res_date, JsonFactory.TITLE_ROOMS: 0})
+            checkin_user = JsonFactory.USER + str(len(json_data) - 1)
+            json_data[checkin_user] = "{username}: {rooms}部屋".format(username=UserDao.get_user(lodging.user_id).username, rooms=lodging.number_of_rooms)
+            json_data[JsonFactory.TITLE_ROOMS] = json_data[JsonFactory.TITLE_ROOMS] + lodging.number_of_rooms
 
         for res_inf in reservation_dict.values():
             room_count = res_inf[JsonFactory.TITLE_ROOMS]
@@ -155,12 +154,10 @@ class JsonFactory:
             else:
                 res_inf[JsonFactory.TITLE_ROOMS] = JsonFactory.VACANT.format(num=(4 - room_count))
 
-
         # 施設利用不可日の登録
         for ng in CalendarMaster.get_ngdata_in_month(year, month):
             ng_date = ng.strftime('%Y-%m-%d')
             reservation_dict[ng_date] = {JsonFactory.RES_DATE: ng_date, JsonFactory.TITLE_ROOMS: JsonFactory.BANNED, JsonFactory.COLOR: "black", JsonFactory.TEXT_COLOR: "while"}
-
 
         # テスト用にreturnを実施
         return list(reservation_dict.values())

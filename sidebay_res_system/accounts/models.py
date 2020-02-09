@@ -464,9 +464,9 @@ class Lodging(models.Model):
 class LodginDao:
 
     @staticmethod
-    def get_lodging_by_reservation_id(reservation_id:int):
+    def get_lodging_by_reservation_id(reservation_id:int, month: int):
         """予約IDに紐づく宿泊エンティティのQuerySetを返却"""
-        return Lodging.objects.filter(reservation_id=reservation_id)
+        return Lodging.objects.filter(reservation_id=reservation_id, lodging_date__month=month)
 
     @staticmethod
     def create_lodging_data(reservation_id: int, user_id: int, check_in_date: datetime.date , visit_duration: int, number_of_rooms: int):
@@ -487,6 +487,13 @@ class LodginDao:
             .filter(lodging_date__year=year) \
             .filter(lodging_date__month=month) \
             .filter(lodging_date__day=day)
+
+    @staticmethod
+    def get_lodging_date_by_year_and_month(year: int, month: int):
+        """予約年月日をもとに、宿泊日エンティティを取得"""
+        return Lodging.objects \
+            .filter(lodging_date__year=year) \
+            .filter(lodging_date__month=month) \
 
     @staticmethod
     def delete_by_reservation_id(reservation_id: int):
