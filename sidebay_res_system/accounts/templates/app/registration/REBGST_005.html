@@ -15,8 +15,8 @@
       <!-- 入力を必須にする -->
       <h6><font color="red">{{ error }}</font></h6>
       <p><input type="password" name="old_password" id="old_password" class="form-control" id="" placeholder="現パスワード" autofocus required></p>
-      <p><input type="password" name="new_password" id="new_password" class="form-control" id="" placeholder="新パスワード" required></p>
-      <p><input type="password" name="new_password_conf" id="new_password_conf" class="form-control" id="" placeholder="新パスワード 確認" required></p>
+      <p><input type="password" name="new_password" id="new_password" class="form-control" id="" placeholder="新パスワード" required  minlength="4"></p>
+      <p><input type="password" name="new_password_conf" id="new_password_conf" class="form-control" id="" placeholder="新パスワード 確認" required  minlength="4"></p>
 
       <button type="submit" class="btn">パスワード変更</button>
 

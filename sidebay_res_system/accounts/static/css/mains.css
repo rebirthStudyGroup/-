@@ -414,5 +414,17 @@ content-box群
     margin-bottom: 0;
     color: #cccccb;
   }
+
+.system-logo {
+    width: 70%;
+    height: auto;
+}
+
+
+.log_td {
+    width: 40%;
+    height: auto;
+}
+
 }
 

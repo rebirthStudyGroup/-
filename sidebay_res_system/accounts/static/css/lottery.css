@@ -196,7 +196,7 @@ label.lottery-label-free-text {
 @media (max-width: 470px) {
   .lottery-card,
   form {
-    width: 350px;
+
     margin: 0 auto;
     margin-bottom: 30px;
     padding-bottom: 30px;

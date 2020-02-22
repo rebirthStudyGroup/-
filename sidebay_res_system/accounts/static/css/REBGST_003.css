@@ -41,3 +41,41 @@
 .REBGST_003 .action-form .btn {
   width: 95%;
 }
+
+
+@media (max-width:765px) {
+
+.REBGST_003 .action-form .btn {
+  width: 50px;
+}
+
+
+.action-cell {
+  display: block;
+  width:70px;
+}
+
+}
+
+/* ========================
+
+スマホ対応
+
+===========================*/
+
+/* @media (max-width: 470px) {
+  .REBGST_003 form {
+    width: initial;
+    margin: 0 auto;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+}
+@media (max-width: 320px) {
+  .REBGST_003 form {
+    width: initial;
+    margin: 0 auto;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+} */

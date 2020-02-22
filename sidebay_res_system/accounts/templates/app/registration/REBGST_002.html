@@ -10,6 +10,10 @@
             <div class="lottery-title">
                 <p class="form-title" id="title-type">予約カレンダー</p>
             </div>
+            <div align="center">
+                ※日付部分クリック・・・登録<br />
+                ※ラベル部分クリック・・・予約情報
+            </div>
             <div id="contents" class="container-fluid">  
                 <div class="col-xs-12">
                   <div class="panel calendar-panel">
@@ -29,7 +33,7 @@
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title" id="label1">抽選エントリーフォーム</h5>
+                    <h5 class="modal-title" id="label1">エントリーフォーム</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
@@ -58,7 +62,9 @@
                           </p>
                           <p id="dateForm1">
                             <label class="lottery-label-day">予約日<span class="required">*</span>
-                              <input class="lottery-days form-control" type="text" id="datepicker_start" size="20" name="check_in_date" maxlength="10"
+                              <input class="lottery-days form-control" type="text" id="datepicker_start_display" size="20" name="" maxlength="10"
+                                placeholder="チェックイン" required readonly>
+                              <input class="lottery-days form-control" type="hidden" id="datepicker_start" size="20" name="check_in_date" maxlength="10"
                                 placeholder="チェックイン" required>
                               <input class="lottery-days form-control" type="text" id="datepicker_end" size="20" name="check_out_date" maxlength="10"
                                 placeholder="チェックアウト" required>

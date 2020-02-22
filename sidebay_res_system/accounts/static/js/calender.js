@@ -267,6 +267,13 @@ calendarInit = function() {
       var firstLotteryDay = date.format();
       var datepicker_start = document.getElementById("datepicker_start");
       datepicker_start.value = firstLotteryDay;
+
+      var datepicker_start_display = document.getElementById("datepicker_start_display");
+      if (datepicker_start_display) {
+          datepicker_start_display.value = firstLotteryDay;
+      }
+
+
       var datepicker_end = document.getElementById("datepicker_end");
       datepicker_end.value = $.datepicker.formatDate("yy-mm-dd", new Date(date._d.setDate(date._d.getDate() + 1)));
 
@@ -280,6 +287,13 @@ calendarInit = function() {
       if (numberOfRoomsE[0]) {
         numberOfRoomsE[0].value = 1;
       }
+
+      var reasonE = document.getElementsByName("reason");
+      if (reasonE[0]) {
+        reasonE[0].value = "";
+      }
+
+
 
         $("#calendarModal").modal(); // モーダル着火
 
