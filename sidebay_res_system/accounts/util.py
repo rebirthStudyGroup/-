@@ -165,7 +165,7 @@ class JsonFactory:
         defeated_list = ResDao.get_defeated_res_list(year, month)
 
         # 辞退した予約IDを除外する（埋まっていると考えない）
-        lod_list = filter(lambda x: x.reservation_id not in defeated_list, lod_list)
+        lod_list = list(filter(lambda x: x.reservation_id not in defeated_list, lod_list))
 
         # 予約情報のQuerySetを取得からjson情報を作成する
         for lodging in lod_list:

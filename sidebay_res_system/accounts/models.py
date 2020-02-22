@@ -271,6 +271,14 @@ class LotDao:
                 result.append(dto)
         return result
 
+    @staticmethod
+    def user_already_applied(user_id: str, check_in_date: datetime.date) -> bool:
+        """引数のユーザが該当日付ですでに申込を行っているかを確認する"""
+        lots = Lottery_pool.objects.filter(user_id=user_id)
+        if list(filter(lambda x: x.check_in_date == check_in_date, lots)):
+            return True
+        return False
+
 
 class Reservations(models.Model):
     """
@@ -335,7 +343,7 @@ class ResDao:
 
     @staticmethod
     def change_request_status_to_confirm(reservation_id: int):
-        """予約情報の申込ステータスを確定させる"""
+        """予約情報の申込ステータスを確定にする"""
         res = ResDao.get_by_reservation_id(reservation_id)
 
         res.request_status = DETERMINED
@@ -343,7 +351,7 @@ class ResDao:
 
     @staticmethod
     def change_request_status_to_cancel(reservation_id: int):
-        """予約情報の申込ステータスを確定させる"""
+        """予約情報の申込ステータスを辞退にする"""
         res = ResDao.get_by_reservation_id(reservation_id)
 
         res.request_status = CANCEL
@@ -352,7 +360,7 @@ class ResDao:
     @staticmethod
     def get_defeated_res_list(year: int, month: int) -> list:
         """予約辞退した予約IDを取得"""
-        return [res.reservation_id for res in Reservations.objects.filter(request_status=2)]
+        return [res.reservation_id for res in Reservations.objects.filter(request_status=CANCEL)]
 
 
     @staticmethod
@@ -380,14 +388,15 @@ class ResDao:
             defeated_list = ResDao.get_defeated_res_list(lodging_date.year, lodging_date.month)
 
             # 辞退した予約IDを除外する（埋まっていると考えない）
-            lodgings = filter(lambda x: x.reservation_id not in defeated_list, lodgings)
+            lodgings = list(filter(lambda x: x.reservation_id not in defeated_list, lodgings))
 
             # 指定の日付の部屋数を全て合算した数値を取得
             rooms[lodging_date] += sum([lodging.number_of_rooms for lodging in lodgings])
 
+            # 以下機能は実装しない事とする↓
             # ログインユーザが指定の日付で予約済の場合 False を返却
-            if user_id in [lod.user_id for lod in lodgings]:
-                return False
+            # if user_id in [lod.user_id for lod in lodgings]:
+            #    return False
 
             # 部屋数が4部屋より多くなった場合
             if rooms[lodging_date] > 4:
@@ -555,4 +564,3 @@ class NumDao:
         num.reservation_id += 1
         num.save()
         return num.reservation_id
-

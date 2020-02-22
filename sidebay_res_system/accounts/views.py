@@ -193,11 +193,14 @@ def push_res_app_button(request):
 
     # 抽選の場合
     if app_status_code == LOTTERY:
-        LotDao.create_res_by_in_and_out(user_id, check_in_date, check_out_date, number_of_rooms, number_of_guests,
-                                        purpose)
+        if not LotDao.user_already_applied(user_id, check_in_date):
+            LotDao.create_res_by_in_and_out(user_id, check_in_date, check_out_date, number_of_rooms, number_of_guests,
+                                            purpose)
+        else:
+            error = "該当日は申込済みです"
 
     # 二次申込の場合
-    if app_status_code == SECOND_APP:
+    elif app_status_code == SECOND_APP:
         if not ResDao.create_res_as_second_reservation(user_id, check_in_date, check_out_date, number_of_rooms, number_of_guests, purpose):
             error = "二次申込が出来ませんでした"
 
