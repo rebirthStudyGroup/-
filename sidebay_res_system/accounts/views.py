@@ -103,6 +103,11 @@ def reset_password(request):
     # ユーザ情報をDBから取得
     target_user = UserDao.get_user(user_id)
 
+    # ユーザ情報が存在しない場合
+    if target_user is None:
+        return TemplateResponse(request, URL_REBGST001,
+                                {"error": "該当のユーザが存在しません"})
+
     # ユーザ情報のメールアドレスと画面から取得したメールアドレスが一致するかチェック
     if UserDao.check_user_by_mail_address(target_user, mail_address):
 
@@ -220,11 +225,11 @@ def __get_app_status_code(check_in_date:datetime.date) -> int:
     second_app_dead_line = lottery_start_line + relativedelta(days=-1)
 
     # 抽選期間の申込の場合
-    if lottery_start_line <= check_in_date and check_in_date < lottery_dead_line:
+    if lottery_start_line <= check_in_date and check_in_date <= lottery_dead_line:
         result = LOTTERY
     # 翌月の場合
-    if today <= check_in_date and check_in_date < second_app_dead_line:
-        if today <= app_dead_line and check_in_date > next_month_first_day:
+    if today <= check_in_date and check_in_date <= second_app_dead_line:
+        if today <= app_dead_line and check_in_date >= next_month_first_day:
             pass
         else:
             result = SECOND_APP
