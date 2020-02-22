@@ -6,8 +6,6 @@ from . import views, util
 
 
 
-
-
 urlpatterns = [
 
     # ログイン画面
@@ -36,10 +34,11 @@ urlpatterns = [
 
     # 管理者カレンダー
     path(r'init_admin_calendar', views.init_admin_calendar, name='init_admin_calendar'),
+    path(r'prohibit_res', views.prohibit_res, name='prohibit_res'),
+    path(r'not_prohibit_res', views.not_prohibit_res, name='not_prohibit_res'),
 
     # 利用規約
     path(r'init_user_terms', views.init_user_terms, name='init_user_terms'),
-    path(r'prohibit_res', views.prohibit_res, name='prohibit_res'),
 
     # ユーザ管理
     path(r'init_sidebay_info', views.init_sidebay_info, name='init_sidebay_info'),
@@ -70,3 +69,5 @@ urlpatterns = [
     # テストデータ作成用
     path(r'confirm_res_app', views.confirm_res_app, name='confirm_res_app'),
 ]
+
+

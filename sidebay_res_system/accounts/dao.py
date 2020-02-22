@@ -33,7 +33,6 @@ class CalendarMaster:
 
         with connection.cursor() as cursor:
             try:
-                print(ng_date.strftime("%Y-%m-%d"))
                 cursor.execute("insert into calendar_master values(%s, %s)", [ng_date.strftime("%Y-%m-%d"), reason])
                 transaction.commit()
             except IntegrityError:
@@ -49,6 +48,14 @@ class CalendarMaster:
             if start_date + timedelta(days=day) in ng_days:
                 return True
         return False
+
+    @staticmethod
+    def clear_ngdate(ng_date: date):
+        """施設利用不可日を消去する"""
+        with connection.cursor() as cursor:
+            cursor.execute("delete from calendar_master where ng_date = %s", [ng_date.strftime("%Y-%m-%d")])
+            cursor.commit()
+
 
 class NumberingManagement:
     """採番テーブル"""

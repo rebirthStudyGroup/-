@@ -563,6 +563,21 @@ def prohibit_res(request):
     from django.http.response import JsonResponse
     return JsonResponse(error, safe=False)
 
+def not_prohibit_res(request):
+    """（管理者専用）施設利用不可日を消去"""
+    error = ""
+    # セッション情報に管理者IDが存在するか確認。存在しなければログイン画面へ遷移
+    if not __is_admini_user(request):
+        return TemplateResponse(request, URL_REBGST001, {"error": "管理者権限がありません"})
+
+    from django.http import QueryDict
+    dic = QueryDict(request.body, encoding='utf-8')
+    ng_date = dic.get('ng_date')
+    CalendarMaster.clear_ngdate(datetime.date.fromisoformat(ng_date))
+
+    from django.http.response import JsonResponse
+    return JsonResponse(error, safe=False)
+
 
 def init_user_terms(request):
 
