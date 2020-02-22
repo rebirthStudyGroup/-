@@ -54,7 +54,7 @@ class CalendarMaster:
         """施設利用不可日を消去する"""
         with connection.cursor() as cursor:
             cursor.execute("delete from calendar_master where ng_date = %s", [ng_date.strftime("%Y-%m-%d")])
-            cursor.commit()
+            transaction.commit()
 
 
 class NumberingManagement:
