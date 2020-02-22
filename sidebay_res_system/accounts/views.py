@@ -292,7 +292,6 @@ def init_password(request):
 
 def logout_user(request):
     Session.objects.all().delete()
-    print("session情報を表示")
     for session_info in UserDao.test_session():
         print(session_info.get_decoded())
     return TemplateResponse(request, URL_REBGST001, {})
@@ -480,6 +479,7 @@ def init_admin_manage(request):
 
 def register_new_user(request):
     """（管理者専用）新規ユーザを登録する"""
+    error = ""
 
     # セッション情報に管理者IDが存在するか確認。存在しなければログイン画面へ遷移
     if not __is_admini_user(request):
@@ -490,13 +490,16 @@ def register_new_user(request):
         username = request.POST.get("user_name", "")
         mail_address = request.POST.get("mail_address", "")
 
-        if(not UserDao.is_already_registered(user_id)):
+        if(UserDao.is_already_registered(user_id)):
+            error = "該当ユーザIDは既に登録されております"
+        else:
             UserDao.create_user(user_id, username, mail_address, INIT_PASS)
+
 
         # 全ユーザ情報を取得
         users = UserDao.get_users()
 
-    return TemplateResponse(request, URL_REBADM001, {"users": users})
+    return TemplateResponse(request, URL_REBADM001, {"users": users, "error": error})
 
 def update_user(request):
     """（管理者専用）ユーザ情報を更新する"""
