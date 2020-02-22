@@ -6,9 +6,11 @@
       </div>
       <!--<div class="form-group" style="text-align:right">-->
       <div class="container" >
+
             <div class="col-xs-12">
                   <p>ユーザーID、氏名、メールアドレスを記載の上、新規登録ボタンを押下してください。</p>
             </div>
+            <h6><font color="red">{{ error }}</font></h6>
             <div style="overflow-x: auto;">
             <table class="table-bordered" width="100%">
                   <thead>
@@ -66,10 +68,10 @@
                                     <div class="form-group">
                                           <td style="padding-left:10px;padding-bottom:15px">{{i.user_id}}</td>
                                           <td align="center">
-                                                <p><input type="text" value="{{i.username}}" name="user_name" id="user_name" class="form-control" onchange="changeText(this);"></p>
+                                                <p><input type="text" value="{{i.username}}" name="user_name" id="user_name" class="form-control" onchange="changeText(this);" required></p>
                                           </td>
                                           <td align="center">
-                                                <p><input type="text" value="{{i.mail_address}}" name="mail_address" id="mail_address" class="form-control"  onchange="changeText(this);"></p>
+                                                <p><input type="text" value="{{i.mail_address}}" name="mail_address" id="mail_address" class="form-control"  onchange="changeText(this);" required></p>
                                           </td>
                                           <td align="center">
                                                 <input type="button" class="btn" formaction="update_user" onclick="return confirmUpdate(this, '{{i.user_id}}')" value="更新">

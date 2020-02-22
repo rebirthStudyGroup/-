@@ -32,10 +32,10 @@
     {% csrf_token %}
     <span style="display:none" id="pass_reset">
     <div class="form-group">
-      <input type="number" id="user_id2" name="user_id" class="form-control" placeholder="社員番号" onchange="user_id.value=user_id2.value" {% if user_id %} value={{ user_id }} {% endif %}>
+      <input type="number" id="user_id2" name="user_id" class="form-control" placeholder="社員番号" onchange="user_id.value=user_id2.value" {% if user_id %} value={{ user_id }} {% endif %} required>
     </div>
     <div class="form-group">
-      <input type="email" name="mail_address" class="form-control" placeholder="メールアドレス">
+      <input type="email" name="mail_address" class="form-control" placeholder="メールアドレス" required>
     </div>
       <button type="submit" class="btn">パスワードリセット</button>
   </form>

@@ -294,6 +294,24 @@ calendarInit = function() {
       }
 
 
+      var prohibitModeHidden = document.getElementById("prohibit_mode");
+      if (prohibitModeHidden) {
+           // 初期化
+           prohibitModeHidden.value = "prohibit_res";
+           document.getElementById("reasonArea").style.display = "";
+           document.getElementById("riyohuka_mongon").style.display = "none";
+
+           $("#calendar").fullCalendar("clientEvents", function (e) {
+               if (e.start._i == firstLotteryDay) {
+                   if (e.title == "施設利用不可") {
+                       prohibitModeHidden.value = "not_prohibit_res";
+                       document.getElementById("reasonArea").style.display = "none";
+                       document.getElementById("riyohuka_mongon").style.display = "";
+                   }
+               }
+           });
+       }
+
 
         $("#calendarModal").modal(); // モーダル着火
 

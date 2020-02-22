@@ -37,19 +37,25 @@
                     </button>
                   </div>
                   <div class="modal-body">
-                    <form class="" action="prohibit_res" method="post" onsubmit="return mySubmit('prohibit_res')"><!--push_res_app_button -->
+                    <form class="" action="prohibit_res" method="post" onsubmit="return mySubmit()"><!--push_res_app_button -->
                       {% csrf_token %}
+                      <input type="hidden" value="prohibit_res" id="prohibit_mode">
                       <div class="card lottery-card">
                         <div class="card-body lottery-card-body">
                           <p id="dateForm1">
+                            <span id="riyohuka_mongon">※施設利用不可を解除します。</span><br />
                             <label class="lottery-label-day">予約日<span class="required">*</span>
-                              <input class="lottery-days form-control" type="text" id="datepicker_start" size="20" name="check_in_date" maxlength="10"
+                              <input class="lottery-days form-control" type="text" id="datepicker_start_display" size="20" name="" maxlength="10"
+                                placeholder="チェックイン" required readonly>
+                              <input class="lottery-days form-control" type="hidden" id="datepicker_start" size="20" name="check_in_date" maxlength="10"
                                 placeholder="チェックイン" required>
                               <input class="lottery-days form-control" type="text" id="datepicker_end" size="20" name="check_out_date" maxlength="10"
                                 placeholder="チェックアウト" required style="display:none">
-                            <label class="lottery-label-day">理由<span class="required">*</span><br />
-                              <input type="text" name="reason" value=""  class="form-control" placeholder="予約不可の理由" required>
+                            <span id="reasonArea">
+                            <label class="lottery-label-day">理由
+                              <input type="text" name="reason" value=""  class="form-control" placeholder="予約不可の理由">
                             </label>
+                            </span>
                           </p>
                         <p>
                         </label>
@@ -80,7 +86,8 @@
 
     {% csrf_token %}
     <script language="JavaScript">
-        function mySubmit(eventName) {
+        function mySubmit() {
+            var eventName = document.getElementById("prohibit_mode").value;
 
             var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
             var check_in_date = document.getElementsByName("check_in_date")[0].value;
@@ -105,7 +112,7 @@
                         if (error) {
                             alert("エラーが発生しました。\n" + error);
                         } else {
-                            alert("登録しました。");
+                            alert("正常に処理されました。");
                         }
                         $('#calendar').fullCalendar( 'refetchEvents' );
 
