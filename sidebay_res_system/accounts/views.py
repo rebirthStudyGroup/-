@@ -12,10 +12,11 @@ from operator import attrgetter
 from .util import login_user
 
 LOG_USR = "login_user_id"
-ADMIN_USR = "adming_id"
+ADMIN_USR = "admin_id"
 LOG_NAME = "login_username"
 LOG_MAIL = "login_mail_address"
 KARA = ""
+INIT_PASS = "rebirth1234"
 
 """画面のURL"""
 URL_REBGST001 = 'app/registration/REBGST_001.html'
@@ -104,11 +105,9 @@ def reset_password(request):
 
     # ユーザ情報のメールアドレスと画面から取得したメールアドレスが一致するかチェック
     if UserDao.check_user_by_mail_address(target_user, mail_address):
-        #TODO 汎用テーブルからパスワード初期値を取得
-        password = "1234"
 
         #DBのユーザパスワードを初期値に更新
-        UserDao.update_user_password(target_user, password)
+        UserDao.update_user_password(target_user, INIT_PASS)
 
         #TODO 登録のメールアドレスにパスワード初期化の旨を送信
         print("仮：メールアドレスにパスワード初期値を送信")
@@ -480,12 +479,12 @@ def register_new_user(request):
         return TemplateResponse(request, URL_REBGST001, {"error": "管理者権限がありません"})
 
     if request.method == "POST":
-        user_id = request.POST.get("user_id", "")
+        user_id = int(request.POST.get("user_id", ""))
         username = request.POST.get("user_name", "")
         mail_address = request.POST.get("mail_address", "")
-        #TODO 初期パスワードを汎用マスタから取得する処理に修正する
-        password = "rebirth123"
-        UserDao.create_user(user_id, username, mail_address, password)
+
+        if(not UserDao.isAlreadyRegistered(user_id)):
+            UserDao.create_user(user_id, username, mail_address, INIT_PASS)
 
         # 全ユーザ情報を取得
         users = UserDao.get_users()
@@ -552,7 +551,7 @@ def prohibit_res(request):
     dic = QueryDict(request.body, encoding='utf-8')
     ng_date = dic.get('ng_date')
     reason = dic.get('reason')
-    CalendarMaster.set_ngdate(datetime.date.fromisoformat(ng_date), reason)
+    error = CalendarMaster.set_ngdate(datetime.date.fromisoformat(ng_date), reason)
 
     from django.http.response import JsonResponse
     return JsonResponse(error, safe=False)
