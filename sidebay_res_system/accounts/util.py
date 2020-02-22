@@ -7,6 +7,11 @@ from accounts.dao import CalendarMaster
 LOG_USR = "login_user_id"
 EMPTY_STR = ""
 
+"""抽選フラグ"""
+DISABLED = 0
+LOTTERY = 1
+SECOND_APP = 2
+
 def login_user(request, user):
     login(request, user)
 
@@ -94,9 +99,10 @@ class JsonFactory:
     """
 
     # カレンダー情報
-    IN_USE = "空室：×"
-    VACANT = "空室：{num}部屋"
-    BANNED = "施設利用不可"
+    IN_USE_LABEL = "×:空なし"
+    VACANT_LABEL = "{num}部屋:空あり"
+    BANNED_LABEL = "施設利用不可"
+    LOT_LABEL = "抽選"
     RES_DATE = "start"
     USER = "user"
     TITLE_ROOMS = "title"
@@ -119,6 +125,12 @@ class JsonFactory:
         :param month: 取得対象となるjsonデータ
         :return: list形式のjsonデータ
         """
+        today = datetime.date.today()
+        app_status = JsonFactory.__get_app_status_code(year, month)
+
+        # 過去月度、翌々月以降の場合、表示しない
+        if(app_status == DISABLED):
+            return list([])
 
         # key = 日付情報、value = タイトル、予約者、日付情報の辞書型を作成
         reservation_dict = {}
@@ -126,13 +138,34 @@ class JsonFactory:
         # 該当月度の最終日
         _, lastday = calendar.monthrange(year, month)
 
+        # 抽選月度の場合
+        if(app_status == LOTTERY):
+            result_list = []
+            for res_date_day in range(lastday):  # 0,1,2,…,lastday - 1
+                res_date = datetime.date(year, month, res_date_day + 1).strftime('%Y-%m-%d')
+                result_list.append({JsonFactory.RES_DATE: res_date, JsonFactory.TITLE_ROOMS: JsonFactory.LOT_LABEL})
+            return result_list
+
+        # 初日
+        first_day = 1
+
+        # 当月分表示時は本日日付以降の予約を表示
+        if(today.month == month):
+            first_day = today.day
+
         # 全ての日付に空の予約情報を設定
-        for res_date_day in range(lastday): # 0,1,2,…,lastday - 1
+        for res_date_day in range(first_day - 1, lastday): # 0,1,2,…,lastday - 1
             res_date = datetime.date(year, month, res_date_day + 1).strftime('%Y-%m-%d')
             reservation_dict[res_date] = {JsonFactory.RES_DATE: res_date, JsonFactory.TITLE_ROOMS: 0}
 
         # 指定の年月から予約情報を取得
-        lod_list = LodginDao.get_lodging_date_by_year_and_month(year, month)
+        lod_list = LodginDao.get_lodging_date_by_year_and_month_and_grt_day(year, month, first_day)
+
+        # 辞退した予約IDリストを取得
+        defeated_list = ResDao.get_defeated_res_list(year, month)
+
+        # 辞退した予約IDを除外する（埋まっていると考えない）
+        lod_list = filter(lambda x: x.reservation_id not in defeated_list, lod_list)
 
         # 予約情報のQuerySetを取得からjson情報を作成する
         for lodging in lod_list:
@@ -148,16 +181,16 @@ class JsonFactory:
         for res_inf in reservation_dict.values():
             room_count = res_inf[JsonFactory.TITLE_ROOMS]
             if room_count > 3:
-                res_inf[JsonFactory.TITLE_ROOMS] = JsonFactory.IN_USE
+                res_inf[JsonFactory.TITLE_ROOMS] = JsonFactory.IN_USE_LABEL
                 res_inf[JsonFactory.COLOR] = "black"
                 res_inf[JsonFactory.TEXT_COLOR] = "white"
             else:
-                res_inf[JsonFactory.TITLE_ROOMS] = JsonFactory.VACANT.format(num=(4 - room_count))
+                res_inf[JsonFactory.TITLE_ROOMS] = JsonFactory.VACANT_LABEL.format(num=(4 - room_count))
 
         # 施設利用不可日の登録
         for ng in CalendarMaster.get_ngdata_in_month(year, month):
             ng_date = ng.strftime('%Y-%m-%d')
-            reservation_dict[ng_date] = {JsonFactory.RES_DATE: ng_date, JsonFactory.TITLE_ROOMS: JsonFactory.BANNED, JsonFactory.COLOR: "black", JsonFactory.TEXT_COLOR: "while"}
+            reservation_dict[ng_date] = {JsonFactory.RES_DATE: ng_date, JsonFactory.TITLE_ROOMS: JsonFactory.BANNED_LABEL, JsonFactory.COLOR: "black", JsonFactory.TEXT_COLOR: "while"}
 
         # テスト用にreturnを実施
         return list(reservation_dict.values())
@@ -165,8 +198,6 @@ class JsonFactory:
     @staticmethod
     def create_login_user_res_info_by_user_id(user_id: int) -> list:
         """ログインユーザに紐づく抽選、宿泊情報を取得"""
-
-
 
         # 返却結果
         result = []
@@ -200,4 +231,27 @@ class JsonFactory:
             result.append(reservation_dict)
 
         return result
+
+    @staticmethod
+    def __get_app_status_code(year: int, month: int) -> int:
+        """引数の月度が抽選か申込か非表示かを判定"""
+        result = 0
+
+        # 当月をYYYYmmの数字に変換
+        target_month_first_date = datetime.date(year=year, month=month, day=1)
+        this_month_first_date = datetime.date.today().replace(day=1)
+
+        # 過去月度
+        if (target_month_first_date < this_month_first_date):
+            return DISABLED
+
+        # 抽選月度
+        if (target_month_first_date == this_month_first_date + relativedelta(months=2)):
+            return LOTTERY
+
+        # 抽選月度より先の月度
+        if (this_month_first_date + relativedelta(months=2) < target_month_first_date):
+            return DISABLED
+
+        return SECOND_APP
 

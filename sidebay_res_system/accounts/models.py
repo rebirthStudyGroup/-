@@ -175,6 +175,13 @@ class UserDao:
         """引数で受け取ったハッシュ化パスワードと文字列パスワードが一致するか確認する"""
         return bcrypt.checkpw(input_password.encode(), hash_password.encode())
 
+    @staticmethod
+    def is_already_registered(user_id: int) -> bool:
+        """引数のユーザIDがすでに登録されているかをチェックする"""
+        user = UserDao.get_user(user_id)
+        return user is not None
+
+
 class Lottery_pool(models.Model):
     """
     抽選申込情報を提供するDTOクラス
@@ -343,6 +350,12 @@ class ResDao:
         res.save()
 
     @staticmethod
+    def get_defeated_res_list(year: int, month: int) -> list:
+        """予約辞退した予約IDを取得"""
+        return [res.reservation_id for res in Reservations.objects.filter(request_status=2)]
+
+
+    @staticmethod
     def check_overflowing_lodging_date(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date, number_of_rooms: int) -> bool:
         """以下の2項目をチェック
         　・既に対象のユーザが予約してないか
@@ -363,6 +376,12 @@ class ResDao:
             # 指定の日付に紐づく宿泊エンティティを取得
             lodgings = LodginDao.get_lodging_date_by_year_and_month_and_day(lodging_date.year, lodging_date.month, lodging_date.day)
 
+            # 辞退した予約IDリストを取得
+            defeated_list = ResDao.get_defeated_res_list(lodging_date.year, lodging_date.month)
+
+            # 辞退した予約IDを除外する（埋まっていると考えない）
+            lodgings = filter(lambda x: x.reservation_id not in defeated_list, lodgings)
+
             # 指定の日付の部屋数を全て合算した数値を取得
             rooms[lodging_date] += sum([lodging.number_of_rooms for lodging in lodgings])
 
@@ -370,8 +389,8 @@ class ResDao:
             if user_id in [lod.user_id for lod in lodgings]:
                 return False
 
-            # 部屋数が5部屋以上となった場合 False を返却
-            if rooms[lodging_date] > 3:
+            # 部屋数が4部屋より多くなった場合
+            if rooms[lodging_date] > 4:
                 return False
 
         # すべての宿泊日で部屋数が4部屋以内に収まれば True を返却
@@ -487,6 +506,14 @@ class LodginDao:
             .filter(lodging_date__year=year) \
             .filter(lodging_date__month=month) \
             .filter(lodging_date__day=day)
+
+    @staticmethod
+    def get_lodging_date_by_year_and_month_and_grt_day(year: int, month: int, day: int):
+        """予約年月日をもとに、宿泊日エンティティを取得"""
+        return Lodging.objects \
+            .filter(lodging_date__year=year) \
+            .filter(lodging_date__month=month) \
+            .filter(lodging_date__day__gte=day)
 
     @staticmethod
     def get_lodging_date_by_year_and_month(year: int, month: int):
