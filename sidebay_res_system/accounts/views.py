@@ -499,7 +499,7 @@ def register_new_user(request):
         # 全ユーザ情報を取得
         users = UserDao.get_users()
 
-    return TemplateResponse(request, URL_REBADM001, {"users": users, "error": error})
+        return TemplateResponse(request, URL_REBADM001, {"users": users, "error": error})
 
 def update_user(request):
     """（管理者専用）ユーザ情報を更新する"""
