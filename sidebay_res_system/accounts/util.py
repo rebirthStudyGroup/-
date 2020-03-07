@@ -189,21 +189,22 @@ class JsonFactory:
             res_date = lodging.lodging_date.strftime('%Y-%m-%d')
 
             # 日付情報に紐づくJSON情報を作成する
-            json_data = reservation_dict.setdefault(res_date, {JsonFactory.RES_DATE: res_date,
-                                                               JsonFactory.TITLE_ROOMS: 0})
+            reservation_dict.setdefault(res_date, {JsonFactory.RES_DATE: res_date,
+                                                   JsonFactory.TITLE_ROOMS: 0})
+            json_data = reservation_dict.get(res_date)
+
+            # 辞書のキーに"user"が含まれる要素数 + 1をユーザ、ステータス名に付与する連続番号とする
+            serialize_num = len(list(filter(lambda x: JsonFactory.USER in x, list(json_data.keys())))) + 1
 
             reservation = ResDao.filter_by_reservation_id(lodging.reservation_id).first()
             if reservation:
-                # ユーザ名、ステータス名のキーに付与する連番
-                serialize_num = str(len(json_data) - 1)
-
                 # ラベル（ステータス名 = ステータス）
                 request_status = reservation.request_status
-                status = JsonFactory.STATUS + serialize_num
+                status = JsonFactory.STATUS + str(serialize_num)
                 json_data[status] = JsonFactory.STATUS_DICT[request_status]
 
                 # ラベル（ユーザ = ユーザ名：予約部屋数）を設定
-                check_in_user = JsonFactory.USER + serialize_num
+                check_in_user = JsonFactory.USER + str(serialize_num)
                 json_data[check_in_user] = "{username}: {rooms}部屋".format(username=reservation.username,
                                                                           rooms=lodging.number_of_rooms)
                 # json_data[check_in_user] = "{username}: {rooms}部屋".format(username=UserDao.get_user(lodging.user_id).username, rooms=lodging.number_of_rooms)

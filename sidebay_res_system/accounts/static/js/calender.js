@@ -1,4 +1,5 @@
 var globalCalendar;
+var globalEventObject;
 
 function closeArea(){
   $('#detail-area').hide();
@@ -213,6 +214,7 @@ calendarInit = function() {
         success: function(data) {
             console.log("===================================================================================================================");
             console.log(JSON.stringify(data));
+            globalEventObject = data;
         },
         error: function() {
         $('#scrpit-warning').show;
@@ -244,19 +246,7 @@ calendarInit = function() {
       var event_data = '<a href="javascript:void(0);" class="close" onclick="return closeArea();">閉じる</a><br>';
 
       event_data += event.title + '<br><br>\n';
-      event_data += '<b>予約者一覧</b><br>\n';
-      if (event.user1) {
-        event_data += event.user1+ '<br>\n';
-      }
-      if (event.user2) {
-        event_data += event.user2+ '<br>\n';
-      }
-      if (event.user3) {
-        event_data += event.user3+ '<br>\n';
-      }
-      if (event.user4) {
-        event_data += event.user4+ '<br>\n';
-      }
+      event_data += getYoyakuIchiran(event);
 
 				//<div id="detail-area"></div>の中にevent_dataを入れて表示させる
 				$('#detail-area').html(event_data).show();
@@ -293,13 +283,13 @@ calendarInit = function() {
         reasonE[0].value = "";
       }
 
-
       var prohibitModeHidden = document.getElementById("prohibit_mode");
       if (prohibitModeHidden) {
            // 初期化
            prohibitModeHidden.value = "prohibit_res";
            document.getElementById("reasonArea").style.display = "";
            document.getElementById("riyohuka_mongon").style.display = "none";
+           document.getElementById("yoyaku_ichiran").innerHTML = "";
 
            $("#calendar").fullCalendar("clientEvents", function (e) {
                if (e.start._i == firstLotteryDay) {
@@ -307,6 +297,11 @@ calendarInit = function() {
                        prohibitModeHidden.value = "not_prohibit_res";
                        document.getElementById("reasonArea").style.display = "none";
                        document.getElementById("riyohuka_mongon").style.display = "";
+                   }
+                   if (e.user1) {
+                       var yoyakuIchiranStr = "予約があります。<br /><span style=\"font-weight:bold; color:#FF0000;\">予約ユーザにキャンセルしてらうように連絡ください</span><br /><br />";
+                       yoyakuIchiranStr += getYoyakuIchiran(e);
+                       document.getElementById("yoyaku_ichiran").innerHTML = yoyakuIchiranStr;
                    }
                }
            });
@@ -318,5 +313,23 @@ calendarInit = function() {
     }
   });
 };
+
+function getYoyakuIchiran(event) {
+      var event_data = '';
+      event_data += '<b>予約者一覧</b><br>\n';
+      if (event.user1) {
+        event_data += event.user1 + "：" + event.status1 + '<br>\n';
+      }
+      if (event.user2) {
+        event_data += event.user2 + "：" + event.status2 + '<br>\n';
+      }
+      if (event.user3) {
+        event_data += event.user3 + "：" + event.status3 + '<br>\n';
+      }
+      if (event.user4) {
+        event_data += event.user4 + "：" + event.status4 + '<br>\n';
+      }
+      return event_data;
+}
 
 $(document).ready(calendarInit);
