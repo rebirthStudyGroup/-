@@ -109,6 +109,8 @@ class JsonFactory:
     TITLE_ROOMS = "title"
     COLOR = "color"
     TEXT_COLOR = "textColor"
+    STATUS_DICT = {"0": "予約確定状況：未確定",
+                   "1": "予約確定状況：確定"}
 
     # ログインユーザの抽選、予約情報
     RES_ID = "res_id"
@@ -192,17 +194,17 @@ class JsonFactory:
             reservation = ResDao.filter_by_reservation_id(lodging.reservation_id).first()
             if reservation:
                 # ラベル（ステータス名 = ステータス）
-                request_status = int(reservation.request_status) + 1
+                request_status = reservation.request_status
                 status = JsonFactory.STATUS + serialize_num
-                json_data[status] = request_status
+                json_data[status] = JsonFactory.STATUS_DICT[status]
 
                 # ラベル（ユーザ = ユーザ名：予約部屋数）を設定
                 check_in_user = JsonFactory.USER + serialize_num
                 json_data[check_in_user] = "{username}: {rooms}部屋".format(username=reservation.username, rooms=lodging.number_of_rooms)
                 # json_data[check_in_user] = "{username}: {rooms}部屋".format(username=UserDao.get_user(lodging.user_id).username, rooms=lodging.number_of_rooms)
 
-            # ラベル（部屋数 = 部屋数）を設定
-            json_data[JsonFactory.TITLE_ROOMS] = json_data[JsonFactory.TITLE_ROOMS] + lodging.number_of_rooms
+                # ラベル（部屋数 = 部屋数）を設定
+                json_data[JsonFactory.TITLE_ROOMS] = json_data[JsonFactory.TITLE_ROOMS] + lodging.number_of_rooms
 
         for res_inf in reservation_dict.values():
             room_count = res_inf[JsonFactory.TITLE_ROOMS]
