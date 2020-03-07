@@ -463,6 +463,11 @@ class ResDao:
         return Reservations.objects.get(reservation_id=reservation_id)
 
     @staticmethod
+    def filter_by_reservation_id(reservation_id: int):
+        """引数の予約IDに紐づく予約情報を取得する"""
+        return Reservations.objects.filter(reservation_id=reservation_id)
+
+    @staticmethod
     def get_loginuserres_dto_by_user_id(user_id: str):
         """ログインユーザ情報に紐づくログインユーザDTOを取得"""
         reservations = Reservations.objects.filter(user_id=user_id)
@@ -471,7 +476,7 @@ class ResDao:
             for res in reservations:
                 dto = LoginUserResInfo()
                 dto.res_id = res.reservation_id
-                dto.app_status = (int)(res.request_status) + 1
+                dto.app_status = int(res.request_status) + 1
                 dto.check_in_date = res.check_in_date
                 dto.check_out_date = res.check_out_date
                 dto.number_of_rooms = res.number_of_rooms

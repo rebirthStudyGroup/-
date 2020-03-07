@@ -159,7 +159,7 @@ def init_my_page_screen(request):
 
         # 本日以降チェックアウト予定の予約・抽選のみ出力
         today = datetime.date.today()
-        login_user_res_info = filter(lambda i: i.check_out_date >= today, login_user_res_info)
+        login_user_res_info = list(filter(lambda i: i.check_out_date >= today, login_user_res_info))
 
         # チェックイン日で降順に出力
         login_user_res_info = sorted(login_user_res_info, key=attrgetter('check_in_date'), reverse=True)

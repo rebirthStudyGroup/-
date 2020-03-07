@@ -105,6 +105,7 @@ class JsonFactory:
     LOT_LABEL = "抽選"
     RES_DATE = "start"
     USER = "user"
+    STATUS = "status"
     TITLE_ROOMS = "title"
     COLOR = "color"
     TEXT_COLOR = "textColor"
@@ -129,7 +130,7 @@ class JsonFactory:
         app_status = JsonFactory.__get_app_status_code(year, month)
 
         # 過去月度、翌々月以降の場合、表示しない
-        if(app_status == DISABLED):
+        if app_status == DISABLED:
             return list([])
 
         # key = 日付情報、value = タイトル、予約者、日付情報の辞書型を作成
@@ -139,24 +140,32 @@ class JsonFactory:
         _, lastday = calendar.monthrange(year, month)
 
         # 抽選月度の場合
-        if(app_status == LOTTERY):
-            result_list = []
+        if app_status == LOTTERY:
             for res_date_day in range(lastday):  # 0,1,2,…,lastday - 1
                 res_date = datetime.date(year, month, res_date_day + 1).strftime('%Y-%m-%d')
-                result_list.append({JsonFactory.RES_DATE: res_date, JsonFactory.TITLE_ROOMS: JsonFactory.LOT_LABEL})
-            return result_list
+                reservation_dict[res_date] = {JsonFactory.RES_DATE: res_date,
+                                              JsonFactory.TITLE_ROOMS: JsonFactory.LOT_LABEL}
+
+            # 施設利用不可日の登録
+            for ng in CalendarMaster.get_ngdata_in_month(year, month):
+                ng_date = ng.strftime('%Y-%m-%d')
+                reservation_dict[ng_date] = {JsonFactory.RES_DATE: ng_date,
+                                             JsonFactory.TITLE_ROOMS: JsonFactory.BANNED_LABEL,
+                                             JsonFactory.COLOR: "black", JsonFactory.TEXT_COLOR: "while"}
+            return list(reservation_dict.values())
 
         # 初日
         first_day = 1
 
         # 当月分表示時は本日日付以降の予約を表示
-        if(today.month == month):
+        if today.month == month:
             first_day = today.day
 
         # 全ての日付に空の予約情報を設定
         for res_date_day in range(first_day - 1, lastday): # 0,1,2,…,lastday - 1
             res_date = datetime.date(year, month, res_date_day + 1).strftime('%Y-%m-%d')
-            reservation_dict[res_date] = {JsonFactory.RES_DATE: res_date, JsonFactory.TITLE_ROOMS: 0}
+            reservation_dict[res_date] = {JsonFactory.RES_DATE: res_date,
+                                          JsonFactory.TITLE_ROOMS: 0}
 
         # 指定の年月から予約情報を取得
         lod_list = LodginDao.get_lodging_date_by_year_and_month_and_grt_day(year, month, first_day)
@@ -173,9 +182,26 @@ class JsonFactory:
             # チェックイン日と連泊日数をもとに、キーとなる日付を取得
             res_date = lodging.lodging_date.strftime('%Y-%m-%d')
 
-            json_data = reservation_dict.setdefault(res_date, {JsonFactory.RES_DATE:res_date, JsonFactory.TITLE_ROOMS: 0})
-            checkin_user = JsonFactory.USER + str(len(json_data) - 1)
-            json_data[checkin_user] = "{username}: {rooms}部屋".format(username=UserDao.get_user(lodging.user_id).username, rooms=lodging.number_of_rooms)
+            # 日付情報に紐づくJSON情報を作成する
+            json_data = reservation_dict.setdefault(res_date, {JsonFactory.RES_DATE:res_date,
+                                                               JsonFactory.TITLE_ROOMS: 0})
+
+            # ユーザ名、ステータス名のキーに付与する連番
+            serialize_num = str(len(json_data) - 1)
+
+            reservation = ResDao.filter_by_reservation_id(lodging.reservation_id).first()
+            if reservation:
+                # ラベル（ステータス名 = ステータス）
+                request_status = int(reservation.request_status) + 1
+                status = JsonFactory.STATUS + serialize_num
+                json_data[status] = request_status
+
+                # ラベル（ユーザ = ユーザ名：予約部屋数）を設定
+                check_in_user = JsonFactory.USER + serialize_num
+                json_data[check_in_user] = "{username}: {rooms}部屋".format(username=reservation.username, rooms=lodging.number_of_rooms)
+                # json_data[check_in_user] = "{username}: {rooms}部屋".format(username=UserDao.get_user(lodging.user_id).username, rooms=lodging.number_of_rooms)
+
+            # ラベル（部屋数 = 部屋数）を設定
             json_data[JsonFactory.TITLE_ROOMS] = json_data[JsonFactory.TITLE_ROOMS] + lodging.number_of_rooms
 
         for res_inf in reservation_dict.values():
@@ -190,7 +216,10 @@ class JsonFactory:
         # 施設利用不可日の登録
         for ng in CalendarMaster.get_ngdata_in_month(year, month):
             ng_date = ng.strftime('%Y-%m-%d')
-            reservation_dict[ng_date] = {JsonFactory.RES_DATE: ng_date, JsonFactory.TITLE_ROOMS: JsonFactory.BANNED_LABEL, JsonFactory.COLOR: "black", JsonFactory.TEXT_COLOR: "while"}
+            reservation_dict[ng_date] = {JsonFactory.RES_DATE: ng_date,
+                                         JsonFactory.TITLE_ROOMS: JsonFactory.BANNED_LABEL,
+                                         JsonFactory.COLOR: "black",
+                                         JsonFactory.TEXT_COLOR: "while"}
 
         # テスト用にreturnを実施
         return list(reservation_dict.values())
@@ -204,10 +233,10 @@ class JsonFactory:
 
         # 対象ユーザに紐づく抽選、予約情報を取得
         reservations = ResDao.get_res_list(user_id)
-        lotterys = LotDao.get_res_list(user_id)
+        lotteries = LotDao.get_res_list(user_id)
 
         # 抽選情報の辞書型を作成
-        for lottery in lotterys:
+        for lottery in lotteries:
             lottery_dict = {}
             lottery_dict[JsonFactory.RES_ID] = lottery.reservation_id
             lottery_dict[JsonFactory.APP_STATUS] = 0
