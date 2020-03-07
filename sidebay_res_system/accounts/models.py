@@ -1,6 +1,3 @@
-
-
-
 from django.db import models
 from django.db import transaction
 from django.contrib.auth.base_user import AbstractBaseUser
@@ -21,6 +18,7 @@ from django.db import connection
 TOBEDETERMINED = 0
 DETERMINED = 1
 CANCEL = 2
+
 
 # 試しにメールアドレスでのログイン機能を実装するためのコードを書いてみる
 class UserManager(BaseUserManager):
@@ -57,6 +55,7 @@ class UserManager(BaseUserManager):
 
         return self._create_user(mail_address, password, **extra_fields)
 
+
 # Create your models here.
 class User(AbstractBaseUser, PermissionsMixin):
     """
@@ -65,7 +64,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     user_id = models.IntegerField(_('ユーザID'), primary_key=True)
     username = models.CharField(_('ユーザ名'), max_length=40, default=None, blank=True)
     mail_address = models.EmailField(_('メールアドレス'), unique=True, default=None)
-    password = models.CharField(_('パスワード'), max_length=128, default=None) #パスワードの入力制限は設けるか
+    password = models.CharField(_('パスワード'), max_length=128, default=None)  # パスワードの入力制限は設けるか
 
     is_staff = models.BooleanField(
         _('staff status'),
@@ -117,9 +116,9 @@ class UserDao:
         return User.objects.order_by('user_id')
 
     @staticmethod
-    def create_user(user_id:int, username:str, mail_address:str, password:str):
+    def create_user(user_id: int, username: str, mail_address: str, password: str):
         """"""
-        #TODO メールアドレスの2重登録にならないような処理を入れる
+        # TODO メールアドレスの2重登録にならないような処理を入れる
         user = User()
         user.user_id = user_id
         user.username = username
@@ -128,7 +127,7 @@ class UserDao:
         user.save()
 
     @staticmethod
-    def update_user(user_id:int, username:str, mail_address:str, password:str):
+    def update_user(user_id: int, username: str, mail_address: str, password: str):
         """引数のユーザIDに紐づくユーザ情報を引数の値に更新する"""
         user = User.objects.get(user_id=user_id)
         if user:
@@ -138,7 +137,7 @@ class UserDao:
             user.save()
 
     @staticmethod
-    def update_user_without_password(user_id:int, username:str, mail_address:str):
+    def update_user_without_password(user_id: int, username: str, mail_address: str):
         """引数のユーザIDに紐づくユーザ情報のうちパスワード以外を引数の値に更新する"""
         user = User.objects.get(user_id=user_id)
         if user:
@@ -156,7 +155,7 @@ class UserDao:
         return Session.objects.all()
 
     @staticmethod
-    def update_user_password(user: User, password:str):
+    def update_user_password(user: User, password: str):
         user.password = UserDao.hash_password(password)
         user.save()
 
@@ -186,16 +185,17 @@ class Lottery_pool(models.Model):
     """
     抽選申込情報を提供するDTOクラス
     """
-    reservation_id =models.AutoField(_('予約ID'), primary_key=True)
+    reservation_id = models.AutoField(_('予約ID'), primary_key=True)
     user_id = models.IntegerField(_('ユーザID'))
     username = models.CharField(_('ユーザ名'), max_length=40)
     check_in_date = models.DateField(_('チェックイン日'))
     check_out_date = models.DateField(_('チェックアウト日'))
     number_of_rooms = models.SmallIntegerField(_('部屋数'))
     number_of_guests = models.SmallIntegerField(_('宿泊人数'))
-    priority = models.SmallIntegerField(_('希望') ,default=1)
+    priority = models.SmallIntegerField(_('希望'), default=1)
     purpose = models.CharField(_('利用形態'), max_length=10, default=None)
     is_defeated = models.BooleanField(_('落選フラグ'), default=False)
+
 
 class LotDao:
     """Lottery_poolオブジェクトを操作するクラス"""
@@ -203,7 +203,8 @@ class LotDao:
     STATUS = 0
 
     @staticmethod
-    def create_res_by_in_and_out(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date, number_of_rooms: int, number_of_guests: int, purpose: str):
+    def create_res_by_in_and_out(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date,
+                                 number_of_rooms: int, number_of_guests: int, purpose: str):
         """Lottery_poolオブジェクトを新規作成する"""
         if CalendarMaster.is_in_ngdate(check_in_date, check_out_date):
             return
@@ -225,7 +226,8 @@ class LotDao:
         visit_duration = (check_out_date - check_in_date).days
 
         # 宿泊データを作成
-        LodginDao.create_lodging_data(lot.reservation_id, lot.user_id, check_in_date , visit_duration, lot.number_of_rooms)
+        LodginDao.create_lodging_data(lot.reservation_id, lot.user_id, check_in_date, visit_duration,
+                                      lot.number_of_rooms)
 
     @staticmethod
     def get_res_list(user_id: int) -> list:
@@ -236,7 +238,7 @@ class LotDao:
         return Lottery_pool.objects.filter(user_id=user_id)
 
     @staticmethod
-    def get_res_by_reservation_id(reservation_id:int):
+    def get_res_by_reservation_id(reservation_id: int):
         """Lotteryオブジェクトを取得
 
         :param reservation_id 予約ID
@@ -296,11 +298,13 @@ class Reservations(models.Model):
     request_status = models.SmallIntegerField(_('申込ステータス'))
     expire_date = models.DateField(_('有効期限'))
 
+
 class ResDao:
     """Reservationsオブジェクトを操作するクラス"""
 
     @staticmethod
-    def create_res_by_in_and_out(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date, number_of_rooms: int, number_of_guests: int, purpose: str):
+    def create_res_by_in_and_out(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date,
+                                 number_of_rooms: int, number_of_guests: int, purpose: str):
         """Reservationsオブジェクトを新規作成する"""
         if CalendarMaster.is_in_ngdate(check_in_date, check_out_date):
             return
@@ -321,7 +325,8 @@ class ResDao:
         visit_duration = (check_out_date - check_in_date).days
 
         # 宿泊データを作成
-        LodginDao.create_lodging_data(res.reservation_id, res.user_id, check_in_date , visit_duration, res.number_of_rooms)
+        LodginDao.create_lodging_data(res.reservation_id, res.user_id, check_in_date, visit_duration,
+                                      res.number_of_rooms)
 
     @staticmethod
     def create_res_by_lottery(reservation_id: int):
@@ -362,9 +367,9 @@ class ResDao:
         """予約辞退した予約IDを取得"""
         return [res.reservation_id for res in Reservations.objects.filter(request_status=CANCEL)]
 
-
     @staticmethod
-    def check_overflowing_lodging_date(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date, number_of_rooms: int) -> bool:
+    def check_overflowing_lodging_date(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date,
+                                       number_of_rooms: int) -> bool:
         """以下の2項目をチェック
         　・既に対象のユーザが予約してないか
         　・指定日の部屋数があふれていないか"""
@@ -382,7 +387,8 @@ class ResDao:
             rooms[lodging_date] = number_of_rooms
 
             # 指定の日付に紐づく宿泊エンティティを取得
-            lodgings = LodginDao.get_lodging_date_by_year_and_month_and_day(lodging_date.year, lodging_date.month, lodging_date.day)
+            lodgings = LodginDao.get_lodging_date_by_year_and_month_and_day(lodging_date.year, lodging_date.month,
+                                                                            lodging_date.day)
 
             # 辞退した予約IDリストを取得
             defeated_list = ResDao.get_defeated_res_list(lodging_date.year, lodging_date.month)
@@ -406,14 +412,17 @@ class ResDao:
         return True
 
     @staticmethod
-    def create_res_as_second_reservation(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date, number_of_rooms: int, number_of_guests: int, purpose: str):
+    def create_res_as_second_reservation(user_id: int, check_in_date: datetime.date, check_out_date: datetime.date,
+                                         number_of_rooms: int, number_of_guests: int, purpose: str):
         """二次申込として予約を確定"""
         # 予約テーブルをロック
         with connection.cursor() as cursor:
-            cursor.execute("LOCK TABLES accounts_reservations WRITE, accounts_lottery_pool WRITE, accounts_lodging WRITE, accounts_user READ, calendar_master READ")
+            cursor.execute(
+                "LOCK TABLES accounts_reservations WRITE, accounts_lottery_pool WRITE, accounts_lodging WRITE, accounts_user READ, calendar_master READ")
             try:
                 if ResDao.check_overflowing_lodging_date(user_id, check_in_date, check_out_date, number_of_rooms):
-                    ResDao.create_res_by_in_and_out(user_id, check_in_date, check_out_date, number_of_rooms, number_of_guests, purpose)
+                    ResDao.create_res_by_in_and_out(user_id, check_in_date, check_out_date, number_of_rooms,
+                                                    number_of_guests, purpose)
                     return True
             finally:
                 cursor.execute("UNLOCK TABLES")
@@ -439,9 +448,10 @@ class ResDao:
         return Reservations.objects.filter(user_id=user_id)
 
     @staticmethod
-    def get_res_by_year_and_month(year:int, month:int):
+    def get_res_by_year_and_month(year: int, month: int):
         """引数の年月に紐づく予約情報を取得する"""
-        return Reservations.objects.filter(check_in_date__year=year).filter(check_in_date__month=month).filter(request_status__lte=1)
+        return Reservations.objects.filter(check_in_date__year=year).filter(check_in_date__month=month).filter(
+            request_status__lte=1)
 
     @staticmethod
     def get_res():
@@ -497,12 +507,13 @@ class Lodging(models.Model):
 class LodginDao:
 
     @staticmethod
-    def get_lodging_by_reservation_id(reservation_id:int, month: int):
+    def get_lodging_by_reservation_id(reservation_id: int, month: int):
         """予約IDに紐づく宿泊エンティティのQuerySetを返却"""
         return Lodging.objects.filter(reservation_id=reservation_id, lodging_date__month=month)
 
     @staticmethod
-    def create_lodging_data(reservation_id: int, user_id: int, check_in_date: datetime.date , visit_duration: int, number_of_rooms: int):
+    def create_lodging_data(reservation_id: int, user_id: int, check_in_date: datetime.date, visit_duration: int,
+                            number_of_rooms: int):
         """予約エンティティと滞在日数を元に、宿泊エンティティを新規作成"""
 
         for vis_day in range(visit_duration):
@@ -533,10 +544,11 @@ class LodginDao:
     def get_lodging_date_by_year_and_month(year: int, month: int):
         """予約年月日をもとに、宿泊日エンティティを取得"""
         return Lodging.objects \
-            .filter(lodging_date__year=year) \
-            .filter(lodging_date__month=month) \
+                   .filter(lodging_date__year=year) \
+                   .filter(lodging_date__month=month) \
+ \
+               @ staticmethod
 
-    @staticmethod
     def delete_by_reservation_id(reservation_id: int):
         """Lodgingオブジェクトを削除"""
         Lodging.objects.filter(reservation_id=reservation_id).delete()
@@ -554,10 +566,12 @@ class LodginDao:
             return current + 1
         return 1
 
+
 class Numbering(models.Model):
     """採番テーブル"""
 
     reservation_id = models.IntegerField(_("予約ID"))
+
 
 class NumDao:
 

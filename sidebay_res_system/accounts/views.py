@@ -228,14 +228,11 @@ def __get_app_status_code(check_in_date:datetime.date) -> int:
     second_app_dead_line = lottery_start_line + relativedelta(days=-1)
 
     # 抽選期間の申込の場合
-    if lottery_start_line <= check_in_date and check_in_date <= lottery_dead_line:
+    if lottery_start_line <= check_in_date <= lottery_dead_line:
         result = LOTTERY
     # 翌月の場合
-    if today <= check_in_date and check_in_date <= second_app_dead_line:
-        if today <= app_dead_line and check_in_date >= next_month_first_day:
-            pass
-        else:
-            result = SECOND_APP
+    if today <= check_in_date <= second_app_dead_line:
+        result = SECOND_APP
 
     return result
 
