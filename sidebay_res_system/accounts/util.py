@@ -12,11 +12,14 @@ DISABLED = 0
 LOTTERY = 1
 SECOND_APP = 2
 
+
 def login_user(request, user):
     login(request, user)
 
+
 def res_send_mail(subject, message, from_email, recipient_list):
     send_mail(subject, message, from_email, recipient_list)
+
 
 def test_send_email():
     """題名"""
@@ -31,6 +34,7 @@ def test_send_email():
         "sennseikou@gmail.com"
     ]
     res_send_mail(subject, message, from_email, recipient_list)
+
 
 def send_password(mail_address: str, password: str):
     """
@@ -47,6 +51,7 @@ def send_password(mail_address: str, password: str):
     ]
     res_send_mail(subject, message, from_email, recipient_list)
 
+
 """
 JSONの返却処理を実施
 """
@@ -59,9 +64,8 @@ from django.http.response import JsonResponse
 
 
 @ensure_csrf_cookie
-    # 取得した文字列の日付を日付型に変換
+# 取得した文字列の日付を日付型に変換
 def get_all_res_info(request):
-
     # 日付を取得
     target_day_str = request.GET.get("yyyymm")
 
@@ -71,7 +75,7 @@ def get_all_res_info(request):
     data = []
 
     # 当月と前後1か月分のjsonデータを取得
-    for i in range(3):# 0～2までの数列
+    for i in range(3):  # 0～2までの数列
         next_day = target_day + relativedelta(months=i)
         next_month = next_day.month
         next_year = next_day.year
@@ -109,8 +113,8 @@ class JsonFactory:
     TITLE_ROOMS = "title"
     COLOR = "color"
     TEXT_COLOR = "textColor"
-    STATUS_DICT = {"0": "予約確定状況：未確定",
-                   "1": "予約確定状況：確定"}
+    STATUS_DICT = {0: "未確定",
+                   1: "確定"}
 
     # ログインユーザの抽選、予約情報
     RES_ID = "res_id"
@@ -164,7 +168,7 @@ class JsonFactory:
             first_day = today.day
 
         # 全ての日付に空の予約情報を設定
-        for res_date_day in range(first_day - 1, lastday): # 0,1,2,…,lastday - 1
+        for res_date_day in range(first_day - 1, lastday):  # 0,1,2,…,lastday - 1
             res_date = datetime.date(year, month, res_date_day + 1).strftime('%Y-%m-%d')
             reservation_dict[res_date] = {JsonFactory.RES_DATE: res_date,
                                           JsonFactory.TITLE_ROOMS: 0}
@@ -185,29 +189,30 @@ class JsonFactory:
             res_date = lodging.lodging_date.strftime('%Y-%m-%d')
 
             # 日付情報に紐づくJSON情報を作成する
-            json_data = reservation_dict.setdefault(res_date, {JsonFactory.RES_DATE:res_date,
+            json_data = reservation_dict.setdefault(res_date, {JsonFactory.RES_DATE: res_date,
                                                                JsonFactory.TITLE_ROOMS: 0})
-
-            # ユーザ名、ステータス名のキーに付与する連番
-            serialize_num = str(len(json_data) - 1)
 
             reservation = ResDao.filter_by_reservation_id(lodging.reservation_id).first()
             if reservation:
+                # ユーザ名、ステータス名のキーに付与する連番
+                serialize_num = str(len(json_data) - 1)
+
                 # ラベル（ステータス名 = ステータス）
                 request_status = reservation.request_status
                 status = JsonFactory.STATUS + serialize_num
-                json_data[status] = JsonFactory.STATUS_DICT[status]
+                json_data[status] = JsonFactory.STATUS_DICT[request_status]
 
                 # ラベル（ユーザ = ユーザ名：予約部屋数）を設定
                 check_in_user = JsonFactory.USER + serialize_num
-                json_data[check_in_user] = "{username}: {rooms}部屋".format(username=reservation.username, rooms=lodging.number_of_rooms)
+                json_data[check_in_user] = "{username}: {rooms}部屋".format(username=reservation.username,
+                                                                          rooms=lodging.number_of_rooms)
                 # json_data[check_in_user] = "{username}: {rooms}部屋".format(username=UserDao.get_user(lodging.user_id).username, rooms=lodging.number_of_rooms)
 
                 # ラベル（部屋数 = 部屋数）を設定
                 json_data[JsonFactory.TITLE_ROOMS] = json_data[JsonFactory.TITLE_ROOMS] + lodging.number_of_rooms
 
         for res_inf in reservation_dict.values():
-            room_count = res_inf[JsonFactory.TITLE_ROOMS]
+            room_count = int(res_inf[JsonFactory.TITLE_ROOMS])
             if room_count > 3:
                 res_inf[JsonFactory.TITLE_ROOMS] = JsonFactory.IN_USE_LABEL
                 res_inf[JsonFactory.COLOR] = "black"
@@ -239,26 +244,23 @@ class JsonFactory:
 
         # 抽選情報の辞書型を作成
         for lottery in lotteries:
-            lottery_dict = {}
-            lottery_dict[JsonFactory.RES_ID] = lottery.reservation_id
-            lottery_dict[JsonFactory.APP_STATUS] = 0
-            lottery_dict[JsonFactory.IN_DATE] = lottery.check_in_date
-            lottery_dict[JsonFactory.OUT_DATE] = lottery.check_out_date
-            lottery_dict[JsonFactory.NUM_ROOMS] = lottery.number_of_rooms
-            lottery_dict[JsonFactory.EXPIRE] = EMPTY_STR
-            lottery_dict[JsonFactory.PRIORITY] = lottery.priority
+            lottery_dict = {JsonFactory.RES_ID: lottery.reservation_id,
+                            JsonFactory.APP_STATUS: 0,
+                            JsonFactory.IN_DATE: lottery.check_in_date,
+                            JsonFactory.OUT_DATE: lottery.check_out_date,
+                            JsonFactory.NUM_ROOMS: lottery.number_of_rooms,
+                            JsonFactory.EXPIRE: EMPTY_STR,
+                            JsonFactory.PRIORITY: lottery.priority}
             result.append(lottery_dict)
 
         # 予約情報の辞書型を作成
         for reservation in reservations:
-            reservation_dict = {}
-            reservation_dict[JsonFactory.RES_ID] = reservation.reservation_id
-            reservation_dict[JsonFactory.APP_STATUS] = reservation.request_status + 1
-            reservation_dict[JsonFactory.IN_DATE] = reservation.check_in_date
-            reservation_dict[JsonFactory.OUT_DATE] = reservation.check_out_date
-            reservation_dict[JsonFactory.NUM_ROOMS] = reservation.number_of_rooms
-            reservation_dict[JsonFactory.EXPIRE] = reservation.expire_date
-            reservation_dict[JsonFactory.PRIORITY] = EMPTY_STR
+            reservation_dict = {JsonFactory.RES_ID: reservation.reservation_id,
+                                JsonFactory.APP_STATUS: reservation.request_status + 1,
+                                JsonFactory.IN_DATE: reservation.check_in_date,
+                                JsonFactory.OUT_DATE: reservation.check_out_date,
+                                JsonFactory.NUM_ROOMS: reservation.number_of_rooms,
+                                JsonFactory.EXPIRE: reservation.expire_date, JsonFactory.PRIORITY: EMPTY_STR}
             result.append(reservation_dict)
 
         return result
@@ -273,16 +275,15 @@ class JsonFactory:
         this_month_first_date = datetime.date.today().replace(day=1)
 
         # 過去月度
-        if (target_month_first_date < this_month_first_date):
+        if target_month_first_date < this_month_first_date:
             return DISABLED
 
         # 抽選月度
-        if (target_month_first_date == this_month_first_date + relativedelta(months=2)):
+        if target_month_first_date == this_month_first_date + relativedelta(months=2):
             return LOTTERY
 
         # 抽選月度より先の月度
-        if (this_month_first_date + relativedelta(months=2) < target_month_first_date):
+        if this_month_first_date + relativedelta(months=2) < target_month_first_date:
             return DISABLED
 
         return SECOND_APP
-
