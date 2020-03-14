@@ -306,7 +306,10 @@ def confirm_res_app(request):
 
 
 def logout_user(request):
-    Session.objects.all().delete()
+    del request.session[ADMIN_FLG]
+    del request.session[LOG_USR]
+    del request.session[LOG_NAME]
+    del request.session[LOG_MAIL]
     for session_info in UserDao.test_session():
         print(session_info.get_decoded())
     return TemplateResponse(request, URL_REBGST001, {})
