@@ -9,7 +9,7 @@ from django.contrib.sessions.models import Session
 from django.contrib.auth.base_user import BaseUserManager
 from django.db.models import Max
 from accounts.dto import LoginUserResInfo
-from accounts.dao import CalendarMaster
+from accounts.dao import CalendarMaster, get_today
 
 import bcrypt
 
@@ -216,7 +216,7 @@ class LotDao:
         lot.number_of_guests = number_of_guests
         lot.purpose = purpose
         lot.request_status = 1
-        lot.expire_date = datetime.date.today() + datetime.timedelta(days=31)
+        lot.expire_date = get_today() + datetime.timedelta(days=31)
         lot.is_defeated = False
         lot.save()
 
@@ -316,7 +316,7 @@ class ResDao:
         res.number_of_guests = number_of_guests
         res.purpose = purpose
         res.request_status = 1
-        res.expire_date = datetime.date.today() + datetime.timedelta(days=31)
+        res.expire_date = get_today() + datetime.timedelta(days=31)
         res.save()
 
         # 滞在日数を導出
@@ -341,7 +341,7 @@ class ResDao:
         res.number_of_guests = lot.number_of_guests
         res.purpose = lot.purpose
         res.request_status = 1
-        res.expire_date = datetime.date.today() + datetime.timedelta(days=31)
+        res.expire_date = get_today() + datetime.timedelta(days=31)
         res.save()
 
     @staticmethod

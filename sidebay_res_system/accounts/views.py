@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.sessions.models import Session
 from dateutil.relativedelta import relativedelta
-from accounts.dao import CalendarMaster
+from accounts.dao import CalendarMaster, get_today
 from operator import attrgetter
 from django.http.response import JsonResponse
 
@@ -167,7 +167,7 @@ def init_my_page_screen(request):
         login_user_res_info.extend(LotDao.get_loginuserres_dto_by_user_id(user_id))
 
         # 本日以降チェックアウト予定の予約・抽選のみ出力
-        today = datetime.date.today()
+        today = get_today()
         login_user_res_info = list(filter(lambda i: i.check_out_date >= today, login_user_res_info))
 
         # チェックイン日で降順に出力
@@ -229,7 +229,7 @@ def __get_app_status_code(check_in_date: datetime.date) -> int:
     DEAD_LINE = 10
 
     # 当月度
-    today = datetime.date.today()
+    today = get_today()
     app_dead_line = today.replace(day=DEAD_LINE)
 
     # 抽選月度の初日と末日

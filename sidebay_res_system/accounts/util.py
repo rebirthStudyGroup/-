@@ -1,7 +1,7 @@
 from django.contrib.auth import login
 from django.core.mail import BadHeaderError, send_mail
 from accounts.models import UserDao, ResDao, LodginDao, LotDao
-from accounts.dao import CalendarMaster
+from accounts.dao import CalendarMaster, get_today
 
 """固定値"""
 LOG_USR = "login_user_id"
@@ -17,7 +17,6 @@ SECOND_APP = 2
 
 def login_user(request, user):
     login(request, user)
-
 
 #
 # def res_send_mail(subject, message, from_email, recipient_list):
@@ -153,7 +152,7 @@ class JsonFactory:
         :param month: 取得対象となるjsonデータの対象月度
         :return: list形式のjsonデータ
         """
-        today = datetime.date.today()
+        today = get_today()
         app_status = JsonFactory.__get_app_status_code(year, month)
 
         # 過去月度、翌々月以降の場合、表示しない
@@ -294,7 +293,7 @@ class JsonFactory:
 
         # 当月をYYYYmmの数字に変換
         target_month_first_date = datetime.date(year=year, month=month, day=1)
-        this_month_first_date = datetime.date.today().replace(day=1)
+        this_month_first_date = get_today().replace(day=1)
 
         # 過去月度
         if target_month_first_date < this_month_first_date:
