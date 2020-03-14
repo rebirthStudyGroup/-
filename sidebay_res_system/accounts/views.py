@@ -130,7 +130,7 @@ def reset_password(request):
                             {"error": "メールアドレスが登録されたメールアドレスと一致しません"})
 
 
-def init_res_top_screen(request):
+def init_res_top_screen(request) -> TemplateResponse:
     """予約日入力画面の初期処理"""
 
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
@@ -147,6 +147,8 @@ def __is_login_user(request) -> bool:
 
 def __is_admin_user(request) -> bool:
     """セッション情報にユーザーIDが存在するかを確認"""
+    if ADMIN_FLG in request.session:
+        return False
     return request.session[ADMIN_FLG] == IS_ADMIN_USER
 
 
