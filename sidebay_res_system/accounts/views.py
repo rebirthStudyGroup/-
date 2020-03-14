@@ -177,6 +177,9 @@ def push_res_app_button(request):
     """予約を実施
 
     """
+    if not __is_login_user(request):
+        return TemplateResponse(request, URL_REBGST001, {"error": "セッションが切断されました"})
+
     user_id = request.session[LOG_USR]
 
     from django.http import QueryDict

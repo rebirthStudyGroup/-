@@ -83,7 +83,7 @@ def get_all_res_info(request):
 
     # セッション情報を確認する
     if not __is_login_user(request):
-        return JsonResponse("セッション情報が切れました。", safe=False)
+        return JsonResponse("セッションが切断されました", safe=False)
 
     target_day = datetime.date(int(target_day_str[0:4]), int(target_day_str[4:6]), 1) - relativedelta(months=1)
 
@@ -106,7 +106,7 @@ def get_login_user_res_info(request):
 
     # セッション情報を確認する
     if not __is_admin_user(request):
-        return JsonResponse("セッション情報が切れました。", safe=False)
+        return JsonResponse("セッションが切断されました", safe=False)
 
     # ログインユーザのユーザIDを取得
     user_id = request.session[LOG_USR]
