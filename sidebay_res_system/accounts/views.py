@@ -148,7 +148,7 @@ def __is_login_user(request) -> bool:
 def __is_admin_user(request) -> bool:
     """セッション情報にユーザーIDが存在するかを確認"""
     if ADMIN_FLG in request.session:
-        return False
+        return True
     return request.session[ADMIN_FLG] == IS_ADMIN_USER
 
 
