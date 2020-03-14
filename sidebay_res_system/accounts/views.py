@@ -1,6 +1,6 @@
 from django.template.response import TemplateResponse
 from accounts.models import User, UserDao, Reservations, ResDao, Lodging, LodginDao, Lottery_pool, LotDao
-from accounts.util import test_send_email, send_password
+# from accounts.util import test_send_email, send_password
 import datetime
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -11,12 +11,18 @@ from operator import attrgetter
 
 from .util import login_user
 
+"""セッション項目"""
 LOG_USR = "login_user_id"
-ADMIN_USR = "admin_id"
+ADMIN_FLG = "login_admin_flg"
 LOG_NAME = "login_username"
 LOG_MAIL = "login_mail_address"
+
+"""固定値"""
 KARA = ""
 INIT_PASS = "rebirth1234"
+IS_ADMIN_USER = 1
+IS_GENERAL_USER = 0
+ADMIN_USER_ID = "0"
 
 """画面のURL"""
 URL_REBGST001 = 'app/registration/REBGST_001.html'
@@ -32,12 +38,13 @@ URL_REBADM002 = "app/registration/REBADM_002.html"
 URL_REBADM004 = "app/registration/REBADM_004.html"
 URL_REBADM005 = "app/registration/REBADM_005.html"
 TEST_SCREEN = "app/registration/test_database.html"
-TEST_RES_SCREEN="app/registration/test_reservation.html"
+TEST_RES_SCREEN = "app/registration/test_reservation.html"
 
 """抽選フラグ"""
 ERROR = 0
 LOTTERY = 1
 SECOND_APP = 2
+
 
 def init_login_screen(request):
     """ログイン処理を実施"""
@@ -54,7 +61,7 @@ def push_login_button(request):
     if request.method == 'POST':
 
         user_id = request.POST.get("user_id", "")
-        password = request.POST.get("password","")
+        password = request.POST.get("password", "")
         user = UserDao.get_user(user_id)
 
         """エラーへの対処法 → no such table: django_session
@@ -63,35 +70,36 @@ def push_login_button(request):
         """
         # ユーザが存在する場合、セッション情報にユーザ情報を登録して、予約画面へ遷移
         if user is not None:
+
+            # 取得したユーザのパスワードと画面から受け取ったパスワードが一致するか
             if UserDao.check_password_between_user_and_input(user, password):
 
-                #TODO 追って修正：ハードコーディング⇒DB取得
-                #if user_id == 0:
-                if True:
-                    request.session[ADMIN_USR] = user.user_id
-                    request.session[LOG_USR] = user.user_id
-                    request.session[LOG_NAME] = user.username
-                    request.session[LOG_MAIL] = user.mail_address
+                # 管理者か一般ユーザかをセッション情報に設定
+                if user_id == ADMIN_USER_ID:
+                    request.session[ADMIN_FLG] = IS_ADMIN_USER
                 else:
-                    request.session[LOG_USR] = user.user_id
-                    request.session[LOG_NAME] = user.username
-                    request.session[LOG_MAIL] = user.mail_address
+                    request.session[ADMIN_FLG] = IS_GENERAL_USER
 
+                # ユーザID、名前、メールアドレスをセッション情報に設定
+                request.session[LOG_USR] = user_id
+                request.session[LOG_NAME] = user.username
+                request.session[LOG_MAIL] = user.mail_address
 
                 return TemplateResponse(request, URL_REBGST002)
             # ユーザID、パスワードが登録情報と一致しない場合、ログイン画面を表示
             else:
                 return TemplateResponse(request, URL_REBGST001,
-                                        {"error": "Your password was not available!!",
-                                         "user_id": user_id,})
+                                        {"error": "ユーザIDとパスワードが一致しません。",
+                                         "user_id": user_id, })
         # ユーザが存在しない場合、ログイン画面を表示
         else:
             return TemplateResponse(request, URL_REBGST001,
-                                    {"error": "Your username was not available!!",
+                                    {"error": "該当のユーザIDが存在しません。",
                                      "user_id": user_id})
     # 初期処理の場合、ログイン画面を表示
     else:
         return TemplateResponse(request, URL_REBGST001, {})
+
 
 def reset_password(request):
     """パスワードリセット"""
@@ -110,17 +118,15 @@ def reset_password(request):
 
     # ユーザ情報のメールアドレスと画面から取得したメールアドレスが一致するかチェック
     if UserDao.check_user_by_mail_address(target_user, mail_address):
-
-        #DBのユーザパスワードを初期値に更新
+        # DBのユーザパスワードを初期値に更新
         UserDao.update_user_password(target_user, INIT_PASS)
 
-        #TODO 登録のメールアドレスにパスワード初期化の旨を送信
-        print("仮：メールアドレスにパスワード初期値を送信")
+        # TODO 登録のメールアドレスにパスワード初期化の旨を送信
 
         return TemplateResponse(request, URL_REBGST001, {"error": ""})
 
     return TemplateResponse(request, URL_REBGST001,
-                                {"error": "メールアドレスが登録されたメールアドレスと一致しません"})
+                            {"error": "メールアドレスが登録されたメールアドレスと一致しません"})
 
 
 def init_res_top_screen(request):
@@ -138,9 +144,9 @@ def __is_login_user(request) -> bool:
     return LOG_USR in request.session
 
 
-def __is_admini_user(request) -> bool:
+def __is_admin_user(request) -> bool:
     """セッション情報にユーザーIDが存在するかを確認"""
-    return ADMIN_USR in request.session
+    return request.session[ADMIN_FLG] == IS_ADMIN_USER
 
 
 def init_my_page_screen(request):
@@ -166,6 +172,7 @@ def init_my_page_screen(request):
 
     return TemplateResponse(request, URL_REBGST003, {"login_user_res_info": login_user_res_info})
 
+
 def push_res_app_button(request):
     """予約を実施
 
@@ -181,7 +188,7 @@ def push_res_app_button(request):
 
     error = ""
 
-    #注意：現時点では宿泊人数を使用しないため、常に0を入力
+    # 注意：現時点では宿泊人数を使用しないため、常に0を入力
     number_of_guests = 0
 
     # 抽選期間か2次申込期間かを取得
@@ -201,14 +208,15 @@ def push_res_app_button(request):
 
     # 二次申込の場合
     elif app_status_code == SECOND_APP:
-        if not ResDao.create_res_as_second_reservation(user_id, check_in_date, check_out_date, number_of_rooms, number_of_guests, purpose):
+        if not ResDao.create_res_as_second_reservation(user_id, check_in_date, check_out_date, number_of_rooms,
+                                                       number_of_guests, purpose):
             error = "二次申込が出来ませんでした"
 
     from django.http.response import JsonResponse
     return JsonResponse(error, safe=False)
 
 
-def __get_app_status_code(check_in_date:datetime.date) -> int:
+def __get_app_status_code(check_in_date: datetime.date) -> int:
     """抽選か二次申込かを判定"""
     result = 0
 
@@ -236,6 +244,7 @@ def __get_app_status_code(check_in_date:datetime.date) -> int:
 
     return result
 
+
 def cancel_res_app(request):
     """抽選申込をキャンセル"""
     reservation_id = request.POST.get("reservation_id", "")
@@ -246,6 +255,7 @@ def cancel_res_app(request):
 
     return init_my_page_screen(request)
 
+
 def confirm_res(request):
     """予約の確定（本申込期間）"""
     reservation_id = request.POST.get("reservation_id", "")
@@ -254,6 +264,7 @@ def confirm_res(request):
         ResDao.change_request_status_to_confirm(reservation_id)
 
     return init_my_page_screen(request)
+
 
 def cancel_res(request):
     """予約の確定（本申込期間）"""
@@ -264,27 +275,29 @@ def cancel_res(request):
 
     return init_my_page_screen(request)
 
+
 def confirm_res_app(request):
     """テスト用予約の確定（本申込期間）"""
-    #TODO delete this method
+    # TODO delete this method
     reservation_id = request.POST.get("reservation_id", "")
 
     if reservation_id:
         ResDao.create_res_by_lottery(reservation_id)
         LotDao.delete_by_reservation_id(reservation_id)
-        return HttpResponseRedirect(reverse('test_reservation', {"error": ""} ))
+        return HttpResponseRedirect(reverse('test_reservation', {"error": ""}))
 
     return TemplateResponse(request, URL_REBGST003)
 
-def init_password(request):
-    """画面側で入力したメールアドレスにパスワードを送信"""
-
-    mail_address = request.POST.get("mail_address", "")
-
-    if not mail_address == KARA:
-        user = UserDao.get_user(mail_address)
-        if user is not None:
-            send_password(mail_address, user.password)
+#
+# def init_password(request):
+#     """画面側で入力したメールアドレスにパスワードを送信"""
+#
+#     mail_address = request.POST.get("mail_address", "")
+#
+#     if not mail_address == KARA:
+#         user = UserDao.get_user(mail_address)
+#         if user is not None:
+#             send_password(mail_address, user.password)
 
 
 def logout_user(request):
@@ -292,6 +305,7 @@ def logout_user(request):
     for session_info in UserDao.test_session():
         print(session_info.get_decoded())
     return TemplateResponse(request, URL_REBGST001, {})
+
 
 def test_database(request):
     """
@@ -313,17 +327,17 @@ def test_database(request):
 
     return TemplateResponse(request, TEST_SCREEN, {"users": users, "json_data": None})
 
+
 def test_get_back_database(request, user_id):
     """予約画面からユーザー一覧画面へ戻る"""
     return HttpResponseRedirect(reverse('test_database'))
 
+
 def test_reservation(request, user_id):
     """
     テスト用の予約作成画面へ遷移する
-    :param request: request
-    :param mail_address: 宿泊対象者のメールアドレス
-    :return: 対象ユーザーの宿泊予約一覧画面
     """
+    # TODO 削除予定
 
     # 対象のユーザーネームを取得
     user = UserDao.get_user(user_id)
@@ -332,15 +346,13 @@ def test_reservation(request, user_id):
     reservations = ResDao.get_res_list(user_id)
     lotterys = LotDao.get_res_list(user_id)
 
-    return TemplateResponse(request, TEST_RES_SCREEN, {"reservations": reservations,"lotterys": lotterys, "username": user.username})
+    return TemplateResponse(request, TEST_RES_SCREEN,
+                            {"reservations": reservations, "lotterys": lotterys, "username": user.username})
 
 
 def register_reservation(request, user_id):
     """
     予約情報を登録する
-    :param request: request
-    :param mail_address: 宿泊登録者のメールアドレス
-    :return: ユーザー一覧画面
     """
 
     if request.method == "POST":
@@ -358,12 +370,14 @@ def register_reservation(request, user_id):
 
         # 抽選フラグが指定されていない場合、予約エンティティを作成
         else:
-            ResDao.create_res_by_in_and_out(user_id, check_in_date, check_out_date, number_of_rooms, number_of_guests, purpose)
+            ResDao.create_res_by_in_and_out(user_id, check_in_date, check_out_date, number_of_rooms, number_of_guests,
+                                            purpose)
 
     # 表示するユーザー情報を取得
     users = UserDao.get_users()
 
     return HttpResponseRedirect(reverse('test_reservation', args=(user_id,)))
+
 
 def turn_lottery_into_reservation(request, user_id):
     """TODO 削除予定
@@ -374,10 +388,11 @@ def turn_lottery_into_reservation(request, user_id):
     :return:
     """
     reservation_id = int(request.POST.get("reservation_id", 0))
-    print("reservation_idは",reservation_id)
+    print("reservation_idは", reservation_id)
     ResDao.create_res_by_lottery(reservation_id)
     LotDao.delete_by_reservation_id(reservation_id)
     return HttpResponseRedirect(reverse('test_reservation', args=(user_id,)))
+
 
 def delete_lottery_or_reservation(request, user_id):
     """
@@ -393,6 +408,7 @@ def delete_lottery_or_reservation(request, user_id):
         LodginDao.delete_by_reservation_id(reservation_id)
 
     return HttpResponseRedirect(reverse('test_reservation', args=(user_id,)))
+
 
 def test_delete_user(request):
     """
@@ -424,7 +440,6 @@ def get_back_to_main_from_test_register(request, user_id):
     return TemplateResponse(request, URL_REBGST001, {})
 
 
-#TODO 未着手
 def init_password_change(request):
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
     if not __is_login_user(request):
@@ -458,14 +473,14 @@ def change_password(request):
 
     # 新パスワードを更新する
     UserDao.update_user(user.user_id, user.username, user.mail_address, new_password)
-    return TemplateResponse(request, URL_REBGST005, {"error":"", "success": "パスワード変更に表示しました"})
+    return TemplateResponse(request, URL_REBGST005, {"error": "", "success": "パスワード変更に表示しました"})
 
 
 def init_admin_manage(request):
     """（管理者専用）管理者画面の初期表示"""
 
     # セッション情報に管理者IDが存在するか確認。存在しなければログイン画面へ遷移
-    if not __is_admini_user(request):
+    if not __is_admin_user(request):
         return TemplateResponse(request, URL_REBGST001, {"error": "管理者権限がありません"})
 
     # 全ユーザ情報を取得
@@ -479,7 +494,7 @@ def register_new_user(request):
     error = ""
 
     # セッション情報に管理者IDが存在するか確認。存在しなければログイン画面へ遷移
-    if not __is_admini_user(request):
+    if not __is_admin_user(request):
         return TemplateResponse(request, URL_REBGST001, {"error": "管理者権限がありません"})
 
     if request.method == "POST":
@@ -487,22 +502,22 @@ def register_new_user(request):
         username = request.POST.get("user_name", "")
         mail_address = request.POST.get("mail_address", "")
 
-        if(UserDao.is_already_registered(user_id)):
+        if UserDao.is_already_registered(user_id):
             error = "該当ユーザIDは既に登録されております"
         else:
             UserDao.create_user(user_id, username, mail_address, INIT_PASS)
-
 
         # 全ユーザ情報を取得
         users = UserDao.get_users()
 
         return TemplateResponse(request, URL_REBADM001, {"users": users, "error": error})
 
+
 def update_user(request):
     """（管理者専用）ユーザ情報を更新する"""
 
     # セッション情報に管理者IDが存在するか確認。存在しなければログイン画面へ遷移
-    if not __is_admini_user(request):
+    if not __is_admin_user(request):
         return TemplateResponse(request, URL_REBGST001, {"error": "管理者権限がありません"})
 
     if request.method == "POST":
@@ -516,11 +531,12 @@ def update_user(request):
 
     return TemplateResponse(request, URL_REBADM001, {"users": users})
 
+
 def delete_user(request):
     """（管理者専用）ユーザ情報を更新する"""
 
     # セッション情報に管理者IDが存在するか確認。存在しなければログイン画面へ遷移
-    if not __is_admini_user(request):
+    if not __is_admin_user(request):
         return TemplateResponse(request, URL_REBGST001, {"error": "管理者権限がありません"})
 
     if request.method == "POST":
@@ -534,14 +550,15 @@ def delete_user(request):
         # 全ユーザ情報を取得
         users = UserDao.get_users()
 
-    return TemplateResponse(request, URL_REBADM001, {"users": users})
+        return TemplateResponse(request, URL_REBADM001, {"users": users})
 
-#TODO 未着手
+
+# TODO 未着手
 def init_admin_calendar(request):
     """（管理者専用）管理者専用カレンダーの初期表示"""
 
     # セッション情報に管理者IDが存在するか確認。存在しなければログイン画面へ遷移
-    if not __is_admini_user(request):
+    if not __is_admin_user(request):
         return TemplateResponse(request, URL_REBGST001, {"error": "管理者権限がありません"})
 
     return TemplateResponse(request, URL_REBADM002, {})
@@ -551,7 +568,7 @@ def prohibit_res(request):
     """（管理者専用）施設利用不可日を登録"""
     error = ""
     # セッション情報に管理者IDが存在するか確認。存在しなければログイン画面へ遷移
-    if not __is_admini_user(request):
+    if not __is_admin_user(request):
         return TemplateResponse(request, URL_REBGST001, {"error": "管理者権限がありません"})
 
     from django.http import QueryDict
@@ -563,11 +580,12 @@ def prohibit_res(request):
     from django.http.response import JsonResponse
     return JsonResponse(error, safe=False)
 
+
 def not_prohibit_res(request):
     """（管理者専用）施設利用不可日を消去"""
     error = ""
     # セッション情報に管理者IDが存在するか確認。存在しなければログイン画面へ遷移
-    if not __is_admini_user(request):
+    if not __is_admin_user(request):
         return TemplateResponse(request, URL_REBGST001, {"error": "管理者権限がありません"})
 
     from django.http import QueryDict
@@ -580,7 +598,6 @@ def not_prohibit_res(request):
 
 
 def init_user_terms(request):
-
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
     if not __is_login_user(request):
         return TemplateResponse(request, URL_REBGST001, {"error": "セッションが切断されました"})
@@ -589,7 +606,6 @@ def init_user_terms(request):
 
 
 def init_sidebay_info(request):
-
     # セッション情報にログインユーザが存在するか確認。存在しなければログイン画面へ遷移
     if not __is_login_user(request):
         return TemplateResponse(request, URL_REBGST001, {"error": "セッションが切断されました"})

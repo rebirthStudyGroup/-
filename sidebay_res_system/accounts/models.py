@@ -98,8 +98,6 @@ class UserDao:
     @staticmethod
     def get_user(user_id: int) -> User:
         """Userオブジェクトを取得
-
-        :param mail_address メールアドレス
         """
         try:
             return User.objects.get(user_id=user_id)
