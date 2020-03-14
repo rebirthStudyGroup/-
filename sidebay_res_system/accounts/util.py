@@ -3,9 +3,11 @@ from django.core.mail import BadHeaderError, send_mail
 from accounts.models import UserDao, ResDao, LodginDao, LotDao
 from accounts.dao import CalendarMaster
 
-# 固定値
+"""固定値"""
 LOG_USR = "login_user_id"
 EMPTY_STR = ""
+ADMIN_FLG = "login_admin_flg"
+IS_ADMIN_USER = 1
 
 """抽選フラグ"""
 DISABLED = 0
@@ -15,6 +17,7 @@ SECOND_APP = 2
 
 def login_user(request, user):
     login(request, user)
+
 
 #
 # def res_send_mail(subject, message, from_email, recipient_list):
@@ -51,6 +54,15 @@ def login_user(request, user):
 #     ]
 #     res_send_mail(subject, message, from_email, recipient_list)
 
+def __is_login_user(request) -> bool:
+    """セッション情報にログインユーザ情報が存在するかを確認"""
+    return LOG_USR in request.session
+
+
+def __is_admin_user(request) -> bool:
+    """セッション情報にユーザーIDが存在するかを確認"""
+    return request.session[ADMIN_FLG] == IS_ADMIN_USER
+
 
 """
 JSONの返却処理を実施
@@ -68,6 +80,10 @@ from django.http.response import JsonResponse
 def get_all_res_info(request):
     # 日付を取得
     target_day_str = request.GET.get("yyyymm")
+
+    # セッション情報を確認する
+    if not __is_login_user(request):
+        return JsonResponse("セッション情報が切れました。", safe=False)
 
     target_day = datetime.date(int(target_day_str[0:4]), int(target_day_str[4:6]), 1) - relativedelta(months=1)
 
@@ -87,6 +103,10 @@ def get_all_res_info(request):
 @ensure_csrf_cookie
 def get_login_user_res_info(request):
     """ログインユーザの予約情報を取得"""
+
+    # セッション情報を確認する
+    if not __is_admin_user(request):
+        return JsonResponse("セッション情報が切れました。", safe=False)
 
     # ログインユーザのユーザIDを取得
     user_id = request.session[LOG_USR]
