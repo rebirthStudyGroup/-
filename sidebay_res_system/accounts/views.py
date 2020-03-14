@@ -8,6 +8,7 @@ from django.contrib.sessions.models import Session
 from dateutil.relativedelta import relativedelta
 from accounts.dao import CalendarMaster
 from operator import attrgetter
+from django.http.response import JsonResponse
 
 from .util import login_user
 
@@ -153,7 +154,7 @@ def init_my_page_screen(request):
     """ログイン画面からログイン処理を実施。"""
 
     if not __is_login_user(request):
-        return TemplateResponse(request, URL_REBGST001, {"error": "セッションが切断されました"})
+        return JsonResponse("セッションが切断されました", safe=False)
 
     login_user_res_info = []
 
@@ -215,7 +216,6 @@ def push_res_app_button(request):
                                                        number_of_guests, purpose):
             error = "二次申込が出来ませんでした"
 
-    from django.http.response import JsonResponse
     return JsonResponse(error, safe=False)
 
 
