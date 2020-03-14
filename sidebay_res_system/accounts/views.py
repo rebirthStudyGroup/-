@@ -154,7 +154,7 @@ def init_my_page_screen(request):
     """ログイン画面からログイン処理を実施。"""
 
     if not __is_login_user(request):
-        return JsonResponse("セッションが切断されました", safe=False)
+        return TemplateResponse(request, URL_REBGST001, {"error": "セッションが切断されました"})
 
     login_user_res_info = []
 
@@ -179,7 +179,7 @@ def push_res_app_button(request):
 
     """
     if not __is_login_user(request):
-        return TemplateResponse(request, URL_REBGST001, {"error": "セッションが切断されました"})
+        return JsonResponse("セッションが切断されました", safe=False)
 
     user_id = request.session[LOG_USR]
 
