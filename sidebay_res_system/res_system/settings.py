@@ -27,7 +27,7 @@ SECRET_KEY = 'v#1u)h&5chbqr4k0ua2y5)#*+a87+u#+o=k!p^z#84tsiq9%b5'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # 林追記。AbstractUserクラスを拡張する際にクラスを登録するようにする
 # http://nihaoshijie.hatenadiary.jp/entry/2014/06/11/165258
@@ -93,6 +93,7 @@ DATABASES = {
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
+            'charset': 'utf8mb4',
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
     }
