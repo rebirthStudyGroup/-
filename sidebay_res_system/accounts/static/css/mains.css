@@ -310,6 +310,10 @@ footer .copyright-text {
 .rebirth-logo {
 }
 
+.pdf_size {
+    width:100%;
+    height:650px;
+}
 
 /* ---------------------------
 レスポンシブ対応
@@ -424,6 +428,12 @@ content-box群
 .log_td {
     width: 40%;
     height: auto;
+}
+
+
+.pdf_size {
+    width:100%;
+    height:auto;
 }
 
 }
