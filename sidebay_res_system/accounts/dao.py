@@ -1,4 +1,4 @@
-from datetime import date, timedelta, datetime
+from datetime import date, datetime, timedelta, timezone
 from django.db import connection, transaction
 from django.db.utils import IntegrityError
 
@@ -85,9 +85,9 @@ def get_today():
     """現在日付もしくは特定日付を取得する"""
     try:
         result = SystemDate.get_system_today()[0]
-        return result if result else date.today()
+        return result if result else datetime.now(timezone(timedelta(hours=+9), 'JST')).date()
     except Exception:
-        return date.today()
+        return datetime.now(timezone(timedelta(hours=+9), 'JST')).date()
 
 
 class SystemDate:
