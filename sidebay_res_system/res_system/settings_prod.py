@@ -6,7 +6,7 @@ DATABASES = {
         'NAME': 'res_system',
         'USER': 'root',
         'PASSWORD': 'Password',
-        'HOST': 'db',
+        'HOST': 'yoyakukun_db',
         'PORT': '3306',
         'OPTIONS': {
             'charset': 'utf8mb4',
@@ -14,3 +14,5 @@ DATABASES = {
         },
     }
 }
+
+STATIC_URL = '/yoyaku-kun/static/'
