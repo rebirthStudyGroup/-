@@ -307,7 +307,7 @@ def confirm_res_app(request):
 
 def logout_user(request):
     if not __is_login_user(request):
-      return TemplateResponse(request, URL_REBGST001, {"error": ""})
+        return TemplateResponse(request, URL_REBGST001, {"error": ""})
 
     del request.session[ADMIN_FLG]
     del request.session[LOG_USR]
