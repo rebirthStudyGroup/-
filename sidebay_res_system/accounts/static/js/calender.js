@@ -196,7 +196,7 @@ calendarInit = function() {
   var title = "hogeddd";
   var dt = new Date();
   // addMonth関数を使う
-  var prem = dt.addMonth( 0 );
+  var prem = dt;
   var y = dt.getFullYear();
   var m = ("00" + (dt.getMonth() + 1)).slice(-2);
   var d = ("00" + dt.getDate()).slice(-2);
