@@ -484,7 +484,7 @@ def change_password(request):
 
     # 新パスワードを更新する
     UserDao.update_user(user.user_id, user.username, user.mail_address, new_password)
-    return TemplateResponse(request, URL_REBGST005, {"error": "", "success": "パスワード変更に表示しました"})
+    return TemplateResponse(request, URL_REBGST005, {"error": "", "success": "パスワードを変更しました"})
 
 
 def init_admin_manage(request):
