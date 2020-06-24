@@ -5,7 +5,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'res_system',
         'USER': 'root',
-        'PASSWORD': 'Password',
+        'PASSWORD': 'BVvL$Fv/q1a8',
         'HOST': 'yoyakukun_db',
         'PORT': '3306',
         'OPTIONS': {
